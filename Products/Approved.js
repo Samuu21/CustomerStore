@@ -1,9 +1,13 @@
+import { BackgroundTask } from 'react-native-background-task';
 import React, { useState, useEffect } from 'react';
 import { View, TouchableOpacity, Text, StyleSheet, ScrollView, Image, ImageBackground } from 'react-native'
 import { AntDesign } from '@expo/vector-icons';
+// letting the app run in the background to execute some code
 import Advert from './Advert';
 import Modal from 'react-native-modal';
 import Details from "./Details/Details";
+import * as Notifications from 'expo-notifications';
+import * as SecureStore from 'expo-secure-store';
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { collection, query, where, getDocs, deleteDoc, doc } from 'firebase/firestore';
@@ -28,7 +32,89 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
+/* BackgroundTask.define(() => {
+    Notifications.setNotificationHandler({
+        handleNotification: async () => ({
+          shouldShowAlert: true,
+          shouldPlaySound: true,
+          shouldSetBadge: true,
+        }),
+    });
+    
+    const [products, setProducts] = useState([]); //fixed array
+    const [products1, setProducts1] = useState([]); //updated array
+    const [use, setUse] = useState([]);
+    
+    setInterval(fetchProducts1, 100);
+    setInterval(newFilter, 1000);
+    
+    async function schedulePushNotification(t, b ) {
+        await Notifications.scheduleNotificationAsync({
+            content: {
+                title: t,
+                body: b,
+                sound: 'pop.mp3',
+            },
+            trigger: { seconds: 1 },
+        });
+    }
+    
+    const fetchProducts = async() => {
+        const userid = await SecureStore.getItemAsync('supplier');
+        const q = query(collection(db, "Items"), where("supplier", "==", userid), where("status", "==", 'Approved'));
+        const querySnapShot = await getDocs(q);
+        if(querySnapShot.empty)
+        {
+            //
+        }
+        else
+        {
+            querySnapShot.forEach((doc) => {
+                setProducts(arr => [...arr, doc.data()]);
+            });
+        }
+    };
+
+    fetchProducts()
+    
+    const fetchProducts1 = async() => {
+        const userid = await SecureStore.getItemAsync('supplier');
+        const q = query(collection(db, "Items"), where("supplier", "==", userid), where("status", "==", 'Approved'));
+        const querySnapShot = await getDocs(q);
+        if(querySnapShot.empty)
+        {
+            //
+        }
+        else
+        {
+            querySnapShot.forEach((doc) => {
+                setProducts1(arr => [...arr, doc.data()]);
+            });
+        }
+    };
+    
+    async function newFilter() {
+        var elements = products1.filter(f => !products.includes(f));
+        setUse(elements);
+        if(use.length > 0)
+        {
+            for(let i = 0; i < use.length; i++)
+            {
+                let name = `Approved Product Name: - ${use[i].name}}`;
+                let body = `Size: Top - ${use[i].top}, Bottom - ${use[i].bottom}, Cup - ${use[i].cup}`
+                await schedulePushNotification(name, body);
+            }
+        }
+    }
+}); */
+
 const Approved = ({ navigation, route }) => {
+
+    /* useEffect(() => {
+        // Schedule the background task
+        BackgroundTask.schedule({ period: 900 }); // Schedule every 15 minutes (900 seconds)
+    }, []); */
+    
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [products, setProducts] = useState([]);
 
@@ -49,7 +135,7 @@ const Approved = ({ navigation, route }) => {
         };
         
         fetchProducts();
-    }, [products]);
+    }, []);
 
     async function deleteData(supplier, name, top, bottom, bra, cup) 
     {
@@ -138,7 +224,7 @@ const Approved = ({ navigation, route }) => {
                                         </Text>
                                     </TouchableOpacity>
                                 </View>
-                                <View style = {styles.image}>
+                                <View>
                                     <Photo id = {item.supplier} name = {item.name}/>
                                 </View>
                                 <View style = {styles.info}>
@@ -221,6 +307,8 @@ const styles = StyleSheet.create({
 
     hold:
     {
+        marginLeft: 7.5,
+        marginBottom: 10,
         paddingVertical: 12.5,
         paddingHorizontal: 2.75,
         alignItems: 'center',
@@ -241,15 +329,6 @@ const styles = StyleSheet.create({
         minWidth: '95%',
         maxWidth: '95%',
         opacity: 0.85
-    },
-
-    image:
-    {
-        maxwidth: 175,
-        maxheight: 175,
-        minwidth: 175,
-        minheight: 175
-
     },
 
     first:

@@ -2,19 +2,19 @@ import 'react-native-gesture-handler';
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { createDrawerNavigator } from '@react-navigation/drawer';
-import { NavigationContainer } from '@react-navigation/native';
-import { Image }from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Home from './Home/Home';
 import Approved from './Home/Approved';
 import Pending from './Home/Pending';
 import Rejected from './Home/Rejected';
+import Item from './Home/Items/Item';
 import Destination from './Details/Destination';
 import Delivery from './Delivery/Delivery';
 import ApprovedD from './Delivery/Approved';
 import Received from './Delivery/Received';
 import SentD from './Delivery/Sent';
+import Item_D from './Delivery/Item/Item_D';
+import Item_S from './Delivery/Item/Item_S';
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 // TODO: Add SDKs for Firebase products that you want to use
@@ -35,15 +35,6 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-function LogoTitle() {
-  return (
-    <Image
-      style={{ width: 200, height: 200, resizeMode: 'contain' }}
-      source={require ('./admin.png')}
-    />
-  );
-}
-
 const DetailsStack = createNativeStackNavigator();
 const HomeStack = createNativeStackNavigator();
 const DeliveryStack = createNativeStackNavigator();
@@ -63,6 +54,7 @@ const HomeStackScreen = ({ route }) => {
         <HomeStack.Screen name = "Approved" component = {Approved} />
         <HomeStack.Screen name = "Pending" component = {Pending} />
         <HomeStack.Screen name = "Rejected" component = {Rejected} />
+        <HomeStack.Screen name = "Item" component = {Item} />
       </HomeStack.Navigator>
     )
 }
@@ -74,6 +66,8 @@ const DeliveryStackScreen = ({route}) => {
         <DeliveryStack.Screen name = "Approved" component = {ApprovedD} />
         <DeliveryStack.Screen name = "Received" component = {Received} />
         <DeliveryStack.Screen name = "Sent" component = {SentD} />
+        <DeliveryStack.Screen name = "Item_D" component = {Item_D} />
+        <DeliveryStack.Screen name = "Item_S" component = {Item_S} />
       </DeliveryStack.Navigator>
   )
 }
@@ -131,27 +125,9 @@ const MyTab = ({ route }) => {
   );
 }
 
-const Drawer = createDrawerNavigator();
-
-const MyDrawer = () => { 
-
-  return (
-    <Drawer.Navigator useLegacyImplementation
-      screenOptions = {{drawerInactiveBackgroundColor: 'black' , drawerInactiveTintColor: '#e6c2bf', drawerActiveTintColor: 'black', drawerActiveBackgroundColor: '#e6c2bf', drawerStyle: {backgroundColor: '#e6c2bf'}}}>
-      <Drawer.Screen name={ 'Home' } component={MyTab}
-        options={{ headerStyle: { height: 100},
-        headerTitle: (props) => <LogoTitle {...props} />,
-        headerTitleAlign: 'center',
-       }}/>
-    </Drawer.Navigator>
-  );
-}
-
 const Admin = () => {
     return (
-        <NavigationContainer>
-            <MyDrawer/>
-        </NavigationContainer>
+      <MyTab/>
     );
 };
 

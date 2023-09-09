@@ -28,10 +28,12 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-const Item_D = ({ invoice, supplier }) => {
+const Item_D = ({ route }) => {
     const [products, setProducts] = useState([]);
     const [des, setDes] = useState([]);
     const [total, setTotal] = useState(0);
+    const [supplier, setSupplier] = useState(route.params.supplier);
+    const [invoice, setInvoice] = useState(route.params.invoice); 
 
     useEffect(() => {
         const fetchProducts = async() => {
@@ -45,13 +47,14 @@ const Item_D = ({ invoice, supplier }) => {
             {
                 querySnapShot.forEach((doc) => {
                     setProducts(arr => [...arr, doc.data()]);
-                    setTotal(total += doc.data().price);
+                    var hold = parseFloat(doc.data().price);
+                    setTotal(total += hold);
                 });
             }
         };
         
         fetchProducts();
-    }, [products]);
+    }, []);
 
     useEffect(() => {
         const fetchDetails = async() => {

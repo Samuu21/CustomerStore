@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, ImageBackground } from "react-native";
 import { Entypo } from '@expo/vector-icons';
-import Advert from "./Advert";
 
 const Delivery = ({ navigation }) => {
     return(
         <View style = {styles.container}>
-            <Advert/>
             <ImageBackground source = {require('../images/cover8.png')} resizeMethod = 'scale'
                     style = {{flex: 1, justifyContent: 'center'}}>
                 <ScrollView style = {styles.scrollV}>

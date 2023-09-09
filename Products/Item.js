@@ -31,12 +31,14 @@ const Item = ({ route }) => {
     const [price, setPrice] = useState(0); //Price of product
     const [top, setTop] = useState(route.params.top); //Size top of product
     const [bottom, setBottom] = useState(route.params.bottom); //Size bottom of product
+    const [bra, setBra] = useState(route.params.bra); //Size bra of product
     const [cup, setCup] = useState(route.params.cup); //Size cup of product
     const [quantity, setQuantity] = useState(0); //Quantity of product
     const [gender, setGender] = useState(''); //Gender of product
     const [category, setCategory] = useState(''); //Category of product
     const [sale, setSale] = useState(''); //Sale of product
     const [saleprice, setSaleP] = useState(0); //Sale price of product
+    const [status, setStatus] = useState(route.params.collection); //Status of product
 
     const toggleModal = () => {
         setIsModalVisible(!isModalVisible);
@@ -48,7 +50,7 @@ const Item = ({ route }) => {
             const fetchid = async() => {
                 const userid = await SecureStore.getItemAsync('supplier');
                 setId(userid);
-                const q = query(collection(db, 'Items'), where("supplier", "==", userid), where("name", "==", name), where("top", '==', top), where("bottom", '==', bottom), where("cup", '==', cup), where("status", "==", route.params.collection));
+                const q = query(collection(db, 'Items'), where("supplier", "==", userid), where("name", "==", name), where("top", '==', top), where("bottom", '==', bottom), where("bra", "==", bra), where("cup", '==', cup), where("status", "==", status));
                 const querySnapShot = await getDocs(q);
                 if(querySnapShot.empty)
                 {
@@ -62,6 +64,7 @@ const Item = ({ route }) => {
                         setPrice(doc.data().price);
                         setTop(doc.data().top);
                         setBottom(doc.data().bottom);
+                        setBra(doc.data().bra);
                         setCup(doc.data().cup);
                         setQuantity(doc.data().quantity);
                         setGender(doc.data().gender);
@@ -81,7 +84,7 @@ const Item = ({ route }) => {
             const fetchid = async() => {
                 const userid = await SecureStore.getItemAsync('supplier');
                 setId(userid);
-                const q = query(collection(db, 'Items'), where("supplier", "==", userid), where("name", "==", route.params.name), where("top", '==', route.params.top), where("bottom", '==', route.params.bottom), where("status", "==", "Pending"));
+                const q = query(collection(db, 'Items'), where("supplier", "==", userid), where("name", "==", name), where("top", '==', top), where("bottom", '==', bottom), where("status", "==", status));
                 const querySnapShot = await getDocs(q);
                 if(querySnapShot.empty)
                 {
@@ -112,7 +115,7 @@ const Item = ({ route }) => {
             const fetchid = async() => {
                 const userid = await SecureStore.getItemAsync('supplier');
                 setId(userid);
-                const q = query(collection(db, 'Items'), where("supplier", "==", userid), where("name", "==", route.params.name), where("top", '==', route.params.top), where("cup", '==', route.params.cup), where("status", "==", "Pending"));
+                const q = query(collection(db, 'Items'), where("supplier", "==", userid), where("name", "==", name), where("top", '==', top), where("cup", '==', cup), where("bra", "==", bra), where("status", "==", status));
                 const querySnapShot = await getDocs(q);
                 if(querySnapShot.empty)
                 {
@@ -125,6 +128,7 @@ const Item = ({ route }) => {
                         setName(doc.data().name);
                         setPrice(doc.data().price);
                         setTop(doc.data().top);
+                        setBra(doc.data().bra);
                         setCup(doc.data().cup);
                         setQuantity(doc.data().quantity);
                         setGender(doc.data().gender);
@@ -144,7 +148,7 @@ const Item = ({ route }) => {
             const fetchid = async() => {
                 const userid = await SecureStore.getItemAsync('supplier');
                 setId(userid);
-                const q = query(collection(db, 'Items'), where("supplier", "==", userid), where("name", "==", route.params.name), where("top", '==', route.params.top), where("status", "==", "Pending"));
+                const q = query(collection(db, 'Items'), where("supplier", "==", userid), where("name", "==", name), where("top", '==', top), where("status", "==", status));
                 const querySnapShot = await getDocs(q);
                 if(querySnapShot.empty)
                 {
@@ -175,7 +179,7 @@ const Item = ({ route }) => {
             const fetchid = async() => {
                 const userid = await SecureStore.getItemAsync('supplier');
                 setId(userid);
-                const q = query(collection(db, 'Items'), where("supplier", "==", userid), where("name", "==", route.params.name), where("bottom", '==', route.params.bottom), where("status", "==", "Pending"));
+                const q = query(collection(db, 'Items'), where("supplier", "==", userid), where("name", "==", name), where("bottom", '==', bottom), where("status", "==", status));
                 const querySnapShot = await getDocs(q);
                 if(querySnapShot.empty)
                 {
@@ -200,12 +204,46 @@ const Item = ({ route }) => {
             fetchid();
         });
     }
+    else
+    {
+        useEffect(() => {
+            const fetchid = async() => {
+                const userid = await SecureStore.getItemAsync('supplier');
+                setId(userid);
+                const q = query(collection(db, 'Items'), where("supplier", "==", userid), where("name", "==", name), where("bottom", '==', bottom), where("bra", "==", bra), where("cup", "==", cup), where("status", "==", status));
+                const querySnapShot = await getDocs(q);
+                if(querySnapShot.empty)
+                {
+                    //
+                }
+                else
+                {
+                    querySnapShot.forEach((doc) => {
+                        setProduct(doc.id);
+                        setName(doc.data().name);
+                        setPrice(doc.data().price);
+                        setBottom(doc.data().bottom);
+                        setBra(doc.data().bra);
+                        setCup(doc.data().cup);
+                        setQuantity(doc.data().quantity);
+                        setGender(doc.data().gender);
+                        setCategory(doc.data().category);
+                        setSale(doc.data().sale);
+                        setSaleP(doc.data().saleprice);
+                    });
+                }
+            };
+            
+            fetchid();
+        });
+    }
 
     const i = {
         name: name,
         price: price,
         top: top,
         bottom: bottom,
+        bra: bra,
         cup: cup,
         quantity: quantity,
         gender: gender,
@@ -238,6 +276,10 @@ const Item = ({ route }) => {
                         <View style = {styles.hold}>
                             <Text style = {styles.header}>Size Bottom:</Text>
                             <Text style = {styles.text}>{bottom}</Text>
+                        </View>
+                        <View style = {styles.hold}>
+                            <Text style = {styles.header}>Size Bra:</Text>
+                            <Text style = {styles.text}>{bra}</Text>
                         </View>
                         <View style = {styles.hold}>
                             <Text style = {styles.header}>Size Cup:</Text>

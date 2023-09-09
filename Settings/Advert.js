@@ -28,7 +28,7 @@ const Advert = () => {
 
     useEffect(() => {
         const fetchAdvert = async() => {
-            const q = query(collection(db, "Adverts"), where("screen", "==", "Account"), where("app", "==", "MB"));
+            const q = query(collection(db, "Adverts"), where("screen", "==", "Customer"), where("app", "==", "MB"));
             const qSnapShot = await getDocs(q);
             if(qSnapShot.empty)
             {

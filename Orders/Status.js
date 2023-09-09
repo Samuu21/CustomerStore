@@ -47,7 +47,7 @@ const Status = ({ name, price, top, bottom, bra, cup, quantity, user, supplier, 
         };
         
         fetchPaid();
-    }, [product]); 
+    }, []); 
 
     if(paid == 'Approved_Dealt')
     {

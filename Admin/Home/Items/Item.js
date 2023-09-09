@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Text, View, TextInput, StyleSheet, ScrollView, Image, TouchableOpacity} from 'react-native';
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
-import { collection, doc, setDoc } from 'firebase/firestore';
+import { collection, query, doc, setDoc, where, getDocs } from 'firebase/firestore';
 import { decode } from 'base-64';
 
 if(typeof atob === 'undefined') {
@@ -27,30 +27,24 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-const Item = ({ name, price, top, bottom, bra, cup, quantity, gender, category, sale, saleprice, supplier, status }) => {
+const Item = ({ route }) => {
     const [i, setI] = useState(''); //Product id is here.
     const [reason, setReason] = useState('');
     const [id, setId] = useState(''); //Image of id
     const [res, setRes] = useState(''); //Image of res
-
-    useEffect(() => {
-        const fetchProducts = async() => {
-            const q = query(collection(db, "Items"), where("name", "==", name), where("price", "==", price), where("top", "==", top), where("bottom", "==", bottom), where("bra", "==", bra), where("cup", "==", cup), where("quantity", "==", quantity), where("gender", "==", gender), where("categpry", "==", category), where("sale", "==", sale), where("saleprice", "==", saleprice), where("supplier", "==", supplier), where("status", "==", status));
-            const querySnapShot = await getDocs(q);
-            if(querySnapShot.empty)
-            {
-                //
-            }
-            else
-            {
-                querySnapShot.forEach((doc) => {
-                    setI(doc.id);
-                });
-            }
-        };
-        
-        fetchProducts();
-    }, []);
+    const [name, setName] = useState(route.params.name); //Name of product
+    const [price, setPrice] = useState(route.params.price); //Price of product
+    const [top, setTop] = useState(route.params.top); //Size top of product
+    const [bottom, setBottom] = useState(route.params.bottom); //Size bottom of product
+    const [bra, setBra] = useState(route.params.bra); //Size bra of product
+    const [cup, setCup] = useState(route.params.cup); //Size cup of product
+    const [quantity, setQuantity] = useState(route.params.quantity); //Quantity of product
+    const [gender, setGender] = useState(route.params.gender); //Gender of product
+    const [category, setCategory] = useState(route.params.category); //Category of product
+    const [sale, setSale] = useState(route.params.sale); //Sale of product
+    const [saleprice, setSaleP] = useState(route.params.saleprice); //Sale price of product
+    const [status, setStatus] = useState(route.params.status); //Status of product
+    const [supplier, setSupplier] = useState(route.params.supplier); //Supplier of product
 
     useEffect(() => {
         const fetchStatus = async() => {
@@ -60,19 +54,21 @@ const Item = ({ name, price, top, bottom, bra, cup, quantity, gender, category, 
             const qSnapShot = await getDocs(q);
             if(qSnapShot.empty && pSnapShot.empty)
             {
-                //
+                console.log('Both empty');
             }
             else if(!pSnapShot.empty && qSnapShot.empty)
             {
                 pSnapShot.forEach((doc) => {
                     setRes(doc.data().image);
                 });
+                console.log('Id empty');
             }
             else if(!qSnapShot.empty && pSnapShot.empty)
             {
                 qSnapShot.forEach((doc) => {
                     setId(doc.data().image);
                 });
+                console.log('Res empty');
             }
             else
             {
@@ -82,11 +78,206 @@ const Item = ({ name, price, top, bottom, bra, cup, quantity, gender, category, 
                 qSnapShot.forEach((doc) => {
                     setId(doc.data().image);
                 }); 
+                console.log('All good');
             }
         };
         
         fetchStatus();
     }, []);
+
+    if(top != '' && bottom != '' && cup != '')
+    {
+        useEffect(() => {
+            const fetchid = async() => {
+                const q = query(collection(db, 'Items'), where("supplier", "==", supplier), where("name", "==", name), where("top", '==', top), where("bottom", '==', bottom), where("bra", "==", bra), where("cup", '==', cup), where("status", "==", status));
+                const querySnapShot = await getDocs(q);
+                if(querySnapShot.empty)
+                {
+                    //
+                }
+                else
+                {
+                    querySnapShot.forEach((doc) => {
+                        setI(doc.id);
+                        setName(doc.data().name);
+                        setPrice(doc.data().price);
+                        setTop(doc.data().top);
+                        setBottom(doc.data().bottom);
+                        setBra(doc.data().bra);
+                        setCup(doc.data().cup);
+                        setQuantity(doc.data().quantity);
+                        setGender(doc.data().gender);
+                        setCategory(doc.data().category);
+                        setSale(doc.data().sale);
+                        setSaleP(doc.data().saleprice);
+                        setStatus(doc.data().status);
+                        setSupplier(doc.data().supplier);
+                    });
+                }
+            };
+
+            fetchid();
+        }, []);
+    }
+    else if(top != '' && bottom != '' && cup == '')
+    {
+        useEffect(() => {
+            const fetchid = async() => {
+                const q = query(collection(db, 'Items'), where("supplier", "==", supplier), where("name", "==", name), where("top", "==", top), where("bottom", "==", bottom), where("status", "==", status));
+                const querySnapShot = await getDocs(q);
+                if(querySnapShot.empty)
+                {
+                    //
+                }
+                else
+                {
+                    querySnapShot.forEach((doc) => {
+                        setI(doc.id);
+                        setName(doc.data().name);
+                        setPrice(doc.data().price);
+                        setTop(doc.data().top);
+                        setBottom(doc.data().bottom);
+                        setQuantity(doc.data().quantity);
+                        setGender(doc.data().gender);
+                        setCategory(doc.data().category);
+                        setSale(doc.data().sale);
+                        setSaleP(doc.data().saleprice);
+                        setStatus(doc.data().status);
+                        setSupplier(doc.data().supplier);
+                    });
+                }
+            };
+            fetchid();
+        }, []);
+    }
+    else if(top != '' && bottom == '' && cup != '')
+    {
+        useEffect(() => {
+            const fetchid = async() => {
+                const q = query(collection(db, 'Items'), where("supplier", "==", supplier), where("name", "==", name), where("top", "==", top), where("cup", "==", cup), where("bra", "==", bra), where("status", "==", status));
+                const querySnapShot = await getDocs(q);
+                if(querySnapShot.empty)
+                {
+                    //
+                }
+                else
+                {
+                    querySnapShot.forEach((doc) => {
+                        setI(doc.id);
+                        setName(doc.data().name);
+                        setPrice(doc.data().price);
+                        setTop(doc.data().top);
+                        setBra(doc.data().bra);
+                        setCup(doc.data().cup);
+                        setQuantity(doc.data().quantity);
+                        setGender(doc.data().gender);
+                        setCategory(doc.data().category);
+                        setSale(doc.data().sale);
+                        setSaleP(doc.data().saleprice);
+                        setStatus(doc.data().status);
+                        setSupplier(doc.data().supplier);
+                    });
+                }
+            };
+
+            fetchid();
+        }, []);
+    }
+    else if(top != '' && bottom == '' && cup == '')
+    {
+        useEffect(() => {
+            const fetchid = async() => {
+                const q = query(collection(db, 'Items'), where("supplier", "==", supplier), where("name", "==", name), where("top", "==", top), where("status", "==", status));
+                const querySnapShot = await getDocs(q);
+                if(querySnapShot.empty)
+                {
+                    //
+                }
+                else
+                {
+                    querySnapShot.forEach((doc) => {
+                        setI(doc.id);
+                        setName(doc.data().name);
+                        setPrice(doc.data().price);
+                        setTop(doc.data().top);
+                        setQuantity(doc.data().quantity);
+                        setGender(doc.data().gender);
+                        setCategory(doc.data().category);
+                        setSale(doc.data().sale);
+                        setSaleP(doc.data().saleprice);
+                        setStatus(doc.data().status);
+                        setSupplier(doc.data().supplier);
+                    });
+                }
+            };
+
+            fetchid();
+        }, []);
+    }
+    else if(top == '' && bottom != '' && cup == '')
+    {
+        useEffect(() => {
+            const fetchid = async() => {
+                const q = query(collection(db, 'Items'), where("supplier", "==", supplier), where("name", "==", name), where("bottom", "==", bottom), where("status", "==", status));
+                const querySnapShot = await getDocs(q);
+                if(querySnapShot.empty)
+                {
+                    //
+                }
+                else
+                {
+                    querySnapShot.forEach((doc) => {
+                        setI(doc.id);
+                        setName(doc.data().name);
+                        setPrice(doc.data().price);
+                        setBottom(doc.data().bottom);
+                        setQuantity(doc.data().quantity);
+                        setGender(doc.data().gender);
+                        setCategory(doc.data().category);
+                        setSale(doc.data().sale);
+                        setSaleP(doc.data().saleprice);
+                        setStatus(doc.data().status);
+                        setSupplier(doc.data().supplier);
+                    });
+                }
+            };
+            
+            fetchid();
+        }, []);
+    }
+    else
+    {
+        useEffect(() => {
+            const fetchid = async() => {
+                const q = query(collection(db, 'Items'), where("supplier", "==", supplier), where("name", "==", name), where("bottom", "==", bottom), where("bra", "==", bra), where("cup", "==", cup), where("status", "==", status));
+                const querySnapShot = await getDocs(q);
+                if(querySnapShot.empty)
+                {
+                    //
+                }
+                else
+                {
+                    querySnapShot.forEach((doc) => {
+                        setI(doc.id);
+                        setName(doc.data().name);
+                        setPrice(doc.data().price);
+                        setBottom(doc.data().bottom);
+                        setBra(doc.data().bra);
+                        setCup(doc.data().cup);
+                        setQuantity(doc.data().quantity);
+                        setGender(doc.data().gender);
+                        setCategory(doc.data().category);
+                        setSale(doc.data().sale);
+                        setSaleP(doc.data().saleprice);
+                        setStatus(doc.data().status);
+                        setSupplier(doc.data().supplier);
+                    });
+                }
+            };
+            
+            fetchid();
+        }, []);
+    }
 
     async function Approve(name, price, top, bottom, bra, cup, quantity, gender, category, sale, saleprice, supplier, i) 
     {
@@ -113,7 +304,7 @@ const Item = ({ name, price, top, bottom, bra, cup, quantity, gender, category, 
         }    
     }
 
-    async function Reject(name, price, top, bottom, cup, quantity, gender, category, sale, saleprice, reason, supplier, i) 
+    async function Reject(name, price, top, bottom, bra, cup, quantity, gender, category, sale, saleprice, reason, supplier, i) 
     {
         try {
             await setDoc(doc(db, 'Items', i),
@@ -143,35 +334,29 @@ const Item = ({ name, price, top, bottom, bra, cup, quantity, gender, category, 
     {
         return (
             <View style = {styles.container}>
-                <ScrollView style = {{ flex: 1, minHeight: '100%' }}>
+                <ScrollView style = {styles.hold}>
                     <Text style = {styles.header}>Product Order Form:</Text>
-                    <View style = {styles.form}>
-                        <View style = {styles.image}>
-                            <Text style = {styles.label}>Identification:</Text>
-                            <Image 
-                                source = {{ uri: 'data:image/jpeg;base64,' + id}}
-                                style = {{ width: '100%', height: '100%', alignSelf: 'center', resizeMode: 'stretch' }}/>
-                        </View>
-                        <View style = {styles.image}>
-                            <Text style = {styles.label}>Residence:</Text>
-                            <Image 
-                                source = {{ uri: 'data:image/jpeg;base64,' + res}}
-                                style = {{ width: '100%', height: '100%', alignSelf: 'center', resizeMode: 'stretch' }}/>
-                        </View>
-                        <TouchableOpacity style = {styles.approve}
-                            onPress = {() => {Approve(name, price, top, bottom, bra, cup, quantity, gender, category, sale, saleprice, supplier, i)}}>
-                            <Text style = {styles.buttonLabel}>Approve Product</Text>
-                        </TouchableOpacity>
-                        <Text style = {styles.space}></Text>
-                        <Text style = {styles.label}>Reject Reason:</Text>
-                        <TextInput style = {styles.input}
-                            onChangeText = {setReason}
-                            value = {reason}/>
-                        <TouchableOpacity style = {styles.reject}
-                            onPress = {() => {Reject(name, price, top, bottom, cup, quantity, gender, category, sale, saleprice, reason, supplier, i)}}>
-                            <Text style = {styles.buttonLabel}>Reject Product</Text>
-                        </TouchableOpacity>
-                    </View>
+                    <Text style = {styles.label}>Identification:</Text>
+                    {id && <Image 
+                        source = {{ uri: 'data:image/jpeg;base64,' + id}}
+                        style = {{ width: 225, height: 225, alignSelf: 'center', resizeMode: 'contain' }}/>}
+                    <Text style = {styles.label}>Residence:</Text>
+                    {res && <Image 
+                        source = {{ uri: 'data:image/jpeg;base64,' + res}}
+                        style = {{ width: 225, height: 225, alignSelf: 'center', resizeMode: 'contain' }}/>}
+                    <TouchableOpacity style = {styles.approve}
+                        onPress = {() => {Approve(name, price, top, bottom, bra, cup, quantity, gender, category, sale, saleprice, supplier, i)}}>
+                        <Text style = {styles.buttonLabel}>Approve Product</Text>
+                    </TouchableOpacity>
+                    <Text style = {styles.space}></Text>
+                    <Text style = {styles.label}>Reject Reason:</Text>
+                    <TextInput style = {styles.input}
+                        onChangeText = {setReason}
+                        value = {reason}/>
+                    <TouchableOpacity style = {styles.reject}
+                        onPress = {() => {Reject(name, price, top, bottom, bra, cup, quantity, gender, category, sale, saleprice, reason, supplier, i)}}>
+                        <Text style = {styles.buttonLabel}>Reject Product</Text>
+                    </TouchableOpacity>
                 </ScrollView>
             </View>
         );
@@ -180,26 +365,22 @@ const Item = ({ name, price, top, bottom, bra, cup, quantity, gender, category, 
     {
         return (
             <View style = {styles.container}>
-                <ScrollView style = {{ flex: 1, minHeight: '100%' }}>
-                    <Text style = {styles.header}>Product Order Form:</Text>
-                    <View style = {styles.form}>
-                        <View style = {styles.image}>
-                            <Text style = {styles.label}>Identification:</Text>
-                            <Image 
-                                source = {{ uri: 'data:image/jpeg;base64,' + id}}
-                                style = {{ width: '100%', height: '100%', alignSelf: 'center', resizeMode: 'stretch' }}/>
-                        </View>
-                        <View style = {styles.image}>
-                            <Text style = {styles.label}>Residence:</Text>
-                            <Image 
-                                source = {{ uri: 'data:image/jpeg;base64,' + res}}
-                                style = {{ width: '100%', height: '100%', alignSelf: 'center', resizeMode: 'stretch' }}/>
-                        </View>
-                        <TouchableOpacity style = {styles.approve}
-                            onPress = {() => {Approve(name, price, top, bottom, bra, cup, quantity, gender, category, sale, saleprice, supplier, i)}}>
-                            <Text style = {styles.buttonLabel}>Approve Product</Text>
-                        </TouchableOpacity>
-                    </View>
+                <ScrollView style = {styles.hold}>
+                    <Text style = {styles.header}>
+                        Product Order Form:
+                    </Text>
+                    <Text style = {styles.label}>Identification:</Text>
+                    {id && <Image 
+                        source = {{ uri: 'data:image/jpeg;base64,' + id}}
+                        style = {{ width: 225, height: 225, alignSelf: 'center', resizeMode: 'contain' }}/>}
+                    <Text style = {styles.label}>Residence:</Text>
+                    {res && <Image 
+                        source = {{ uri: 'data:image/jpeg;base64,' + res}}
+                        style = {{ width: 225, height: 225, alignSelf: 'center', resizeMode: 'contain' }}/>}
+                    <TouchableOpacity style = {styles.approve}
+                        onPress = {() => {Approve(name, price, top, bottom, bra, cup, quantity, gender, category, sale, saleprice, supplier, i)}}>
+                        <Text style = {styles.buttonLabel}>Approve Product</Text>
+                    </TouchableOpacity>
                 </ScrollView>
             </View>
         );
@@ -208,30 +389,25 @@ const Item = ({ name, price, top, bottom, bra, cup, quantity, gender, category, 
     {
         return (
             <View style = {styles.container}>
-                <ScrollView style = {{ flex: 1, minHeight: '100%' }}>
-                    <Text style = {styles.header}>Product Order Form:</Text>
-                    <View style = {styles.form}>
-                        <View style = {styles.image}>
-                            <Text style = {styles.label}>Identification:</Text>
-                            <Image 
-                                source = {{ uri: 'data:image/jpeg;base64,' + id}}
-                                style = {{ width: '100%', height: '100%', alignSelf: 'center', resizeMode: 'stretch' }}/>
-                        </View>
-                        <View style = {styles.image}>
-                            <Text style = {styles.label}>Residence:</Text>
-                            <Image 
-                                source = {{ uri: 'data:image/jpeg;base64,' + res}}
-                                style = {{ width: '100%', height: '100%', alignSelf: 'center', resizeMode: 'stretch' }}/>
-                        </View>
-                        <Text style = {styles.label}>Reject Reason:</Text>
-                        <TextInput style = {styles.input}
-                            onChangeText = {setReason}
-                            value = {reason}/>
-                        <TouchableOpacity style = {styles.reject}
-                            onPress = {() => {Reject(name, price, top, bottom, cup, quantity, gender, category, sale, saleprice, reason, supplier, i)}}>
-                            <Text style = {styles.buttonLabel}>Reject Product</Text>
-                        </TouchableOpacity>
-                    </View>
+                <ScrollView style = {styles.hold}>
+                    <Text style = {styles.header}>
+                        Product Order Form:
+                    </Text>
+                    <Text style = {styles.label}>Identification:</Text>
+                    {id && <Image 
+                        source = {{ uri: 'data:image/jpeg;base64,' + id}}
+                        style = {{ width: 225, height: 225, alignSelf: 'center', resizeMode: 'contain' }}/>}
+                    <Text style = {styles.label}>Residence:</Text>
+                    {res && <Image 
+                        source = {{ uri: 'data:image/jpeg;base64,' + res}}
+                        style = {{ width: 225, height: 225, alignSelf: 'center', resizeMode: 'contain' }}/>}
+                    <TextInput style = {styles.input}
+                        onChangeText = {setReason}
+                        value = {reason}/>
+                    <TouchableOpacity style = {styles.reject}
+                        onPress = {() => {Reject(name, price, top, bottom, bra, cup, quantity, gender, category, sale, saleprice, reason, supplier, i)}}>
+                        <Text style = {styles.buttonLabel}>Reject Product</Text>
+                    </TouchableOpacity>
                 </ScrollView>
             </View>
         );
@@ -244,39 +420,29 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        borderBottomColor: 'black',
-        borderBottomWidth: 1
+        backgroundColor: 'white',
+    },
+
+    hold:
+    {
+        minWidth: '100%',
+        maxWidth: '100%',
     },
 
     header:
     {
         color: 'black',
-        justifyContent: 'center',
-        alignSelf: 'center',
         fontFamily: 'sans-serif',
-        fontSize: 18,
-        paddingBottom: 15,
-    },
-
-    form:
-    {
-        paddingTop: 5,
-        paddingBottom: 10,
-        paddingHorizontal: 1,
-        borderTopColor: 'black',
-        borderTopWidth: 1,
-        borderBottomColor: 'black',
-        borderBottomWidth: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
+        fontSize: 17.5,
+        alignSelf: 'center'
     },
 
     label:
     {
         color: 'black',
-        fontFamily: 'sans-serif-thin',
+        fontFamily: 'sans-serif-light',
         fontSize: 15,
-        marginTop: 15,
+        paddingTop: 15,
         alignSelf: 'center',
     },
 
@@ -287,9 +453,10 @@ const styles = StyleSheet.create({
         borderRadius: 1,
         paddingVertical: 5,
         paddingHorizontal: 10,
-        minWidth: '95%',
-        maxWidth: '95%',
-        marginVertical: 5,
+        minWidth: '90%',
+        maxWidth: '90%',
+        marginVertical: 12.5,
+        marginHorizontal: 15
     },
 
     approve:
@@ -301,7 +468,7 @@ const styles = StyleSheet.create({
         borderWidth: 2,
         borderRadius: 1,
         backgroundColor: 'green',
-        marginTop: 17.5,
+        marginVertical: 15,
         paddingVertical: 5,
         minWidth: '75%',
         maxWidth: '75%'
@@ -317,18 +484,10 @@ const styles = StyleSheet.create({
         borderRadius: 1,
         backgroundColor: 'red',
         marginTop: 17.5,
+        marginVertical: 15,
         paddingVertical: 5,
         minWidth: '75%',
         maxWidth: '75%'
-    },
-
-    image:
-    {
-        minHeight: '90%',
-        maxHeight: '90%',
-        minWidth: '90%',
-        maxWidth: '90%',
-        paddingVertical: 3.25
     },
 
     buttonLabel:
@@ -339,17 +498,6 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         fontSize: 15,
         color: 'white',
-        padding: 5
-    },
-
-    blabel:
-    {
-        justifyContent: 'center',
-        alignItems: 'center',
-        fontFamily: 'sans-serif',
-        fontWeight: 'bold',
-        fontSize: 15,
-        color: 'black',
         padding: 5
     },
 });

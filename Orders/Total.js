@@ -32,7 +32,8 @@ const Total = ({ supplier, invoice }) => {
             else
             {
                 querySnapShot.forEach((doc) => {
-                    setTotal(total += doc.data().price);
+                    var hold = parseFloat(doc.data().price);
+                    setTotal(total += hold);
                 });
             }
         };

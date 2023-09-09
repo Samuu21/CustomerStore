@@ -28,10 +28,12 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-const Item_S = ({ invoice, supplier }) => {
+const Item_S = ({ route }) => {
     const [products, setProducts] = useState([]);
     const [total, setTotal] = useState(0);
     const [des, setDes] = useState([]);
+    const [invoice, setInvoice] = useState(route.params.invoice);
+    const [supplier, setSupplier] = useState(route.params.supplier);
 
     useEffect(() => {
         const fetchProducts = async() => {
@@ -45,7 +47,8 @@ const Item_S = ({ invoice, supplier }) => {
             {
                 querySnapShot.forEach((doc) => {
                     setProducts(arr => [...arr, doc.data()]);
-                    setTotal(total += doc.data().price);
+                    var hold = parseFloat(doc.data().price);
+                    setTotal(total += hold);
                 });
             }
         };
@@ -72,27 +75,27 @@ const Item_S = ({ invoice, supplier }) => {
         fetchDetails();
     }, []);
 
-    async function Sent(products) 
+    async function Sent(...products) 
     {
-        products.forEach(async (item) => {
+        for(let i = 0; i < products.length; i++) {
             try {
-                await setDoc(doc(db, 'Orders', item.id),
+                await setDoc(doc(db, 'Orders', products[i].id),
                 {
-                    name: item.data().name,
-                    price: item.data().price,
-                    top: item.data().top,
-                    bottom: item.data().bottom,
-                    cup: item.data().cup,
-                    quantity: item.data().quantity,
-                    user: item.data().user,
-                    supplier: item.data().supplier,
+                    name: products[i].name,
+                    price: products[i].price,
+                    top: products[i].top,
+                    bottom: products[i].bottom,
+                    cup: products[i].cup,
+                    quantity: products[i].quantity,
+                    user: products[i].user,
+                    supplier: products[i].supplier,
                     status: 'Sent',
-                    invoice: item.data().invoice
+                    invoice: products[i].invoice
                 });
             } catch (error) {
                 console.error("Error adding document: ", error);
             }
-        });
+        };
         alert('Package has been sent successfully.');
     }
 
@@ -219,7 +222,7 @@ const Item_S = ({ invoice, supplier }) => {
                 <Text style = {{ fontFamily: 'sans-serif', fontWeight: 'bold', fontSize: 15}}>Invoice Total: R{subtotal}</Text>
             </View>
             <TouchableOpacity style = {styles.sent}
-                onPress = {() => {Sent(products)}}>
+                onPress = {() => {Sent(...products)}}>
                 <Text style = {styles.buttonLabel}>Sent/Delivered</Text>
             </TouchableOpacity>
         </SafeAreaView>

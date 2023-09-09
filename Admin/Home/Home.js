@@ -6,29 +6,32 @@ const Home = ({ navigation }) => {
 
     return(
         <View style = {styles.container}>
-            <ScrollView style = {styles.scrollV}>
-                <View style = {styles.row}>
-                    <TouchableOpacity style = {styles.icon}
-                        onPress = {() => navigation.navigate('Approved', {id: id})}>
-                        <Text style = {styles.label}>Approved Products</Text>
-                        <Entypo name = 'clipboard' size = {30} color = 'black'/>
-                        <Text style = {styles.number}></Text>
-                    </TouchableOpacity>
-                    <Text style = {styles.space}></Text>
-                    <TouchableOpacity style = {styles.icon}
-                        onPress = {() => navigation.navigate('Pending', {id: id})}>
-                        <Text style = {styles.label}>Pending Products</Text>
-                        <Entypo name = 'cycle' size = {30} color = 'black'/>
-                        <Text style = {styles.number}></Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style = {styles.icon}
-                        onPress = {() => navigation.navigate('Rejected', {id: id})}>
-                        <Text style = {styles.label}>Rejected Products</Text>
-                        <Entypo name = 'block' size = {30} color = 'black'/>
-                        <Text style = {styles.number}></Text>
-                    </TouchableOpacity>
-                </View>
-            </ScrollView> 
+            <ImageBackground source = {require('../images/cover3.png')} resizeMethod = 'scale'
+                style = {{flex: 1, justifyContent: 'center'}}>
+                <ScrollView style = {styles.scrollV}>
+                    <View style = {styles.row}>
+                        <TouchableOpacity style = {styles.icon}
+                            onPress = {() => navigation.navigate('Approved')}>
+                            <Text style = {styles.label}>Approved Products</Text>
+                            <Entypo name = 'clipboard' size = {30} color = 'black'/>
+                            <Text style = {styles.number}></Text>
+                        </TouchableOpacity>
+                        <Text style = {styles.space}></Text>
+                        <TouchableOpacity style = {styles.icon}
+                            onPress = {() => navigation.navigate('Pending')}>
+                            <Text style = {styles.label}>Pending Products</Text>
+                            <Entypo name = 'cycle' size = {30} color = 'black'/>
+                            <Text style = {styles.number}></Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style = {styles.icon}
+                            onPress = {() => navigation.navigate('Rejected')}>
+                            <Text style = {styles.label}>Rejected Products</Text>
+                            <Entypo name = 'block' size = {30} color = 'black'/>
+                            <Text style = {styles.number}></Text>
+                        </TouchableOpacity>
+                    </View>
+                </ScrollView> 
+            </ImageBackground>
         </View>
     );
 };

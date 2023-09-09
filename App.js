@@ -1,10 +1,10 @@
 import 'react-native-gesture-handler';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { NavigationContainer } from '@react-navigation/native';
-import { Image }from 'react-native';
+import { Image, StatusBar }from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Account from './Account/Account';
 import Home from './Home/Home';
@@ -29,6 +29,15 @@ import PendingO from './Orders/Pending';
 import RejectedO from './Orders/Rejected';
 import Complete from './Orders/Complete';
 import Sent from './Orders/Sent';
+import Item_M from './Orders/Item/Item_M';
+import Item_D from './Orders/Item/Item_D';
+import Item_S from './Orders/Item/Item_S';
+import Privacy from './Settings/Privacy';
+import Customer from './Settings/Customer';
+import Terms from './Settings/Terms';
+import Refund from './Settings/Refund';
+import Admin from './Admin/Admin';
+import * as SecureStore from 'expo-secure-store';
 
 function LogoTitle() {
   return (
@@ -39,10 +48,22 @@ function LogoTitle() {
   );
 }
 
+function LogoTitlee() {
+  return (
+    <Image
+      style={{ width: 200, height: 200, resizeMode: 'contain' }}
+      source={require ('./images/admin.png')}
+    />
+  );
+}
+
 const HomeStack = createNativeStackNavigator();
 const AccountStack = createNativeStackNavigator();
 const ProductsStack = createNativeStackNavigator();
 const OrdersStack = createNativeStackNavigator();
+const SettingsStack = createNativeStackNavigator();
+const AdminStack = createNativeStackNavigator();
+const SentStack = createNativeStackNavigator();
 
 const HomeStackScreen = () => {
   return (
@@ -86,7 +107,39 @@ const OrdersStackScreen = () => {
         <OrdersStack.Screen name = "Pending" component = {PendingO}/>
         <OrdersStack.Screen name = "Rejected" component = {RejectedO}/>
         <OrdersStack.Screen name = "Complete" component = {Complete}/>
+        <OrdersStack.Screen name = "Item_M" component = {Item_M}/>
+        <OrdersStack.Screen name = "Item_D" component = {Item_D}/>
+        <OrdersStack.Screen name = "Item_S" component = {Item_S}/>
       </OrdersStack.Navigator>
+  )
+}
+
+const SettingsStackScreen = ({ route }) => {
+  return (
+      <SettingsStack.Navigator screenOptions={{ headerShown: false }}>
+        <SettingsStack.Screen name = "Customer" component = {Customer} />
+        <SettingsStack.Screen name = "Privacy" component = {Privacy} />
+        <SettingsStack.Screen name = "Refund" component = {Refund} />
+        <SettingsStack.Screen name = "Terms" component = {Terms} />
+      </SettingsStack.Navigator>
+
+  )
+}
+
+const AdminStackScreen = () => {
+  return (
+    <AdminStack.Navigator screenOptions = {{ headerShown: false }}>
+      <AdminStack.Screen name = "Admin" component = {Admin}/>
+    </AdminStack.Navigator>
+  )
+}
+
+const SentStackScreen = () => {
+  return (
+    <SentStack.Navigator screenOptions = {{ headerShown: false }}>
+      <SentStack.Screen name = 'Sent' component = {Sent}/>
+      <SentStack.Screen name = 'Item_D' component = {Item_D}/>
+    </SentStack.Navigator>
   )
 }
 
@@ -146,27 +199,79 @@ const MyTab = () => {
 const Drawer = createDrawerNavigator();
 
 const MyDrawer = () => { 
+  const [id, setId] = useState('');
 
-  return (
-    <Drawer.Navigator useLegacyImplementation
-      screenOptions = {{drawerInactiveBackgroundColor: 'black' , drawerInactiveTintColor: '#e6c2bf', drawerActiveTintColor: 'black', drawerActiveBackgroundColor: '#e6c2bf', drawerStyle: {backgroundColor: '#e6c2bf'}}}>
-      <Drawer.Screen name={ 'Home' } component={MyTab}
-        options={{ headerStyle: { height: 100},
-        headerTitle: (props) => <LogoTitle {...props} />,
-        headerTitleAlign: 'center',
-        }}/>
-      <Drawer.Screen name={ 'Orders' } component={OrdersStackScreen}
-        options={{ headerStyle: { height: 100},
-        headerTitle: (props) => <LogoTitle {...props} />,
-        headerTitleAlign: 'center',
-        }}/>
-        <Drawer.Screen name={ 'Sent/Delivered' } component={Sent}
-        options={{ headerStyle: { height: 100},
-        headerTitle: (props) => <LogoTitle {...props} />,
-        headerTitleAlign: 'center',
-        }}/>
-    </Drawer.Navigator>
-  );
+    useEffect(() => {
+      const fetchid = async() => {
+        const userid = await SecureStore.getItemAsync('supplier');
+        setId(userid);
+      };
+        
+      fetchid();
+    
+  }, []);
+
+  if(id == 'mlangenisamu@gmail.com')
+  {
+    return (
+      <Drawer.Navigator useLegacyImplementation
+        screenOptions = {{drawerInactiveBackgroundColor: 'black' , drawerInactiveTintColor: '#e6c2bf', drawerActiveTintColor: 'black', drawerActiveBackgroundColor: '#e6c2bf', drawerStyle: {backgroundColor: '#e6c2bf'}}}>
+        <Drawer.Screen name={ 'Home' } component={MyTab}
+          options={{ headerStyle: { height: 100},
+          headerTitle: (props) => <LogoTitle {...props} />,
+          headerTitleAlign: 'center',
+          }}/>
+        <Drawer.Screen name={ 'Orders' } component={OrdersStackScreen}
+          options={{ headerStyle: { height: 100},
+          headerTitle: (props) => <LogoTitle {...props} />,
+          headerTitleAlign: 'center',
+          }}/>
+          <Drawer.Screen name={ 'Sent/Delivered' } component={SentStackScreen}
+          options={{ headerStyle: { height: 100},
+          headerTitle: (props) => <LogoTitle {...props} />,
+          headerTitleAlign: 'center',
+          }}/>
+          <Drawer.Screen name={ 'Customer Service' } component={SettingsStackScreen} 
+          options={{ headerStyle: { height: 100},
+          headerTitle: (props) => <LogoTitle {...props} />,
+          headerTitleAlign: 'center',
+          }}/>
+          <Drawer.Screen name={ 'Admin' } component={AdminStackScreen} 
+          options={{ headerStyle: { height: 100},
+          headerTitle: (props) => <LogoTitlee {...props} />,
+          headerTitleAlign: 'center',
+          }}/>
+      </Drawer.Navigator>
+    );
+  }
+  else
+  {
+    return (
+      <Drawer.Navigator useLegacyImplementation
+        screenOptions = {{drawerInactiveBackgroundColor: 'black' , drawerInactiveTintColor: '#e6c2bf', drawerActiveTintColor: 'black', drawerActiveBackgroundColor: '#e6c2bf', drawerStyle: {backgroundColor: '#e6c2bf'}}}>
+        <Drawer.Screen name={ 'Home' } component={MyTab}
+          options={{ headerStyle: { height: 100},
+          headerTitle: (props) => <LogoTitle {...props} />,
+          headerTitleAlign: 'center',
+          }}/>
+        <Drawer.Screen name={ 'Orders' } component={OrdersStackScreen}
+          options={{ headerStyle: { height: 100},
+          headerTitle: (props) => <LogoTitle {...props} />,
+          headerTitleAlign: 'center',
+          }}/>
+          <Drawer.Screen name={ 'Sent/Delivered' } component={Sent}
+          options={{ headerStyle: { height: 100},
+          headerTitle: (props) => <LogoTitle {...props} />,
+          headerTitleAlign: 'center',
+          }}/>
+          <Drawer.Screen name={ 'Customer Service' } component={SettingsStackScreen} 
+          options={{ headerStyle: { height: 100},
+          headerTitle: (props) => <LogoTitle {...props} />,
+          headerTitleAlign: 'center',
+         }}/>
+      </Drawer.Navigator>
+    );
+  }
 }
 
 const LoginStack = createNativeStackNavigator();
@@ -196,6 +301,7 @@ const LoginStackScreen = () => {
 const App = () => {
     return (
         <NavigationContainer>
+          <StatusBar barStyle="dark-content" backgroundColor={'white'}/>
           <LoginStackScreen/>
         </NavigationContainer>
     );

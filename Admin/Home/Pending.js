@@ -1,8 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { View, TouchableOpacity, Text, StyleSheet, ScrollView, Image, ImageBackground } from 'react-native'
-import Advert from './Advert';
-import Modal from 'react-native-modal';
-import Item from './Items/Item';
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { collection, query, where, getDocs, } from 'firebase/firestore';
@@ -27,21 +24,8 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-const Pending = () => {
-    const [isModalVisible, setIsModalVisible] = useState(false);
+const Pending = ({ navigation }) => {
     const [products, setProducts] = useState([]);
-    const [name, setName] = useState('');
-    const [price, setPrice] = useState(0);
-    const [top, setTop] = useState(null);
-    const [bottom, setBottom] = useState(null);
-    const [bra, setBra] = useState(null);
-    const [cup, setCup] = useState(null);
-    const [quantity, setQuantity] = useState(0);
-    const [gender, setGender] = useState('');
-    const [category, setCategory] = useState('');
-    const [sale, setSale] = useState('');
-    const [saleprice, setSalePrice] = useState(0);
-    const [supplier, setSupplier] = useState('');
 
     useEffect(() => {
         const fetchProducts = async() => {
@@ -60,38 +44,17 @@ const Pending = () => {
         };
         
         fetchProducts();
-    }, [products]); 
-
-    function toggleModal(name, price, top, bottom, bra, cup, quantity, gender, category, sale, saleprice, supplier) {
-        setName(name); 
-        setPrice(price);
-        setTop(top); 
-        setBottom(bottom);
-        setBra(bra);
-        setCup(cup); 
-        setQuantity(quantity); 
-        setGender(gender);
-        setCategory(category);
-        setSale(sale);
-        setSalePrice(saleprice); 
-        setSupplier(supplier);
-        setIsModalVisible(!isModalVisible);
-    };
-
-    function toggleModall() {
-        setIsModalVisible(!isModalVisible);
-    };
+    }, []);
     
     if(products.length <= 0) //This one is if there is no result.
     {
         return (
             <View style = {styles.container}>
-                <Advert/>
                 <ScrollView style = {styles.scrollV}>
                     <View style = {styles.scroll}>
                         <Image style = {{ width: 175, height: 175, resizeMode: 'contain', marginTop: 35, paddingBottom: 7.5}}
                             source = {require('../images/NoProducts.png')}/>
-                        <Text style = {styles.desc}> There are no orders approved yet.</Text>
+                        <Text style = {styles.desc}> There are no products pending yet.</Text>
                     </View>
                 </ScrollView>
             </View>
@@ -101,14 +64,13 @@ const Pending = () => {
     {
         return(
             <View style = {styles.container}>
-                <Advert/>
                 <ImageBackground source = {require('../images/cover6.png')} resizeMethod = 'scale'
                     style = {{flex: 1, justifyContent: 'center'}}>
                     <ScrollView style = {styles.scrollV}>
                     {products.map((item, key) => (
                         <TouchableOpacity style = {styles.hold}
                             key = {key}
-                            onPress = {() => {toggleModal(item.name, item.price, item.top, item.bottom, item.bra, item.cup, item.quantity, item.gender, item.category, item.sale, item.saleprice, item.supplier)}}>
+                            onPress = {() => {navigation.navigate('Item', {name: item.name, price: item.price, top: item.top, bottom: item.bottom, bra: item.bra, cup: item.cup, quantity: item.quantity, gender: item.gender, category: item.category, sale: item.sale, saleprice: item.saleprice, supplier: item.supplier, status: item.status})}}>
                             <View style = {styles.row}>
                                 <View style = {styles.image}>
                                     <Photo id = {item.supplier} name = {item.name}/>
@@ -126,20 +88,6 @@ const Pending = () => {
                     ))}
                     <Text style = {styles.space}></Text>
                     </ScrollView>
-                    <Modal
-                        animationInTiming = {1000}
-                        animationIn = {'slideInLeft'}
-                        animationOutTiming = {1000}
-                        animationOut = {'slideOutRight'}
-                        isVisible = {isModalVisible}>
-                        <View style = {styles.container}>
-                            <Item name = {name} price = {price} top = {top} bottom = {bottom} bra = {bra} cup = {cup} quantity = {quantity} gender = {gender} category = {category} sale = {sale} saleprice = {saleprice} supplier = {supplier} status = {'Pending'} />
-                            <TouchableOpacity style = {styles.button2}
-                                onPress = {() => {toggleModall()}}>
-                                <Text style = {styles.buttonLabel2}>Go Back</Text>
-                            </TouchableOpacity>
-                        </View>
-                    </Modal>
                 </ImageBackground>
             </View>
         )
@@ -190,6 +138,8 @@ const styles = StyleSheet.create({
 
     hold:
     {
+        marginLeft: 7.5,
+        marginBottom: 10,
         paddingVertical: 12.5,
         paddingHorizontal: 2.75,
         alignItems: 'center',

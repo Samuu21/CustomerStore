@@ -27,12 +27,24 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-const Item = ({ name, price, top, bottom, bra, cup, quantity, user, id, status, invoice }) => {
+const Item_M = ({ route }) => {
     const [i, setI] = useState(''); //Product id is here.
+    const [name, setName] = useState(route.params.name); //Name of product
+    const [price, setPrice] = useState(route.params.price); //Price of product
+    const [top, setTop] = useState(route.params.top); //Size top of product
+    const [bottom, setBottom] = useState(route.params.bottom); //Size bottom of product
+    const [bra, setBra] = useState(route.params.bra); //Size bra of product
+    const [cup, setCup] = useState(route.params.cup); //Size cup of product
+    const [quantity, setQuantity] = useState(route.params.quantity); //Quantity of product
+    const [status, setStatus] = useState(route.params.status); //Status of product
+    const [user, setuser] = useState(route.params.user); //User of product
+    const [supplier, setSupplier] = useState(route.params.supplier); //Supplier of product
+    const [invoice, setInvoice] = useState(route.params.invoice); //Invoice of product
+
 
     useEffect(() => {
         const fetchProducts = async() => {
-            const q = query(collection(db, "Orders"), where("name", "==", name), where("price", "==", price), where("top", "==", top), where("bottom", "==", bottom), where("bra", "==", bra), where("cup", "==", cup), where("quantity", "==", quantity), where("user", "==", user), where("supplier", "==", id), where("status", "==", status), where("invoice", "==", invoice));
+            const q = query(collection(db, "Orders"), where("name", "==", name), where("price", "==", price), where("top", "==", top), where("bottom", "==", bottom), where("bra", "==", bra), where("cup", "==", cup), where("quantity", "==", quantity), where("user", "==", user), where("supplier", "==", supplier), where("status", "==", status), where("invoice", "==", invoice));
             const querySnapShot = await getDocs(q);
             if(querySnapShot.empty)
             {
@@ -49,7 +61,7 @@ const Item = ({ name, price, top, bottom, bra, cup, quantity, user, id, status, 
         fetchProducts();
     }, []);
 
-    async function Approve(name, price, top, bottom, bra, cup, quantity, user, id, invoice, i) 
+    async function Approve(name, price, top, bottom, bra, cup, quantity, user, supplier, invoice, i) 
     {
         try {
             await setDoc(doc(db, 'Orders', i),
@@ -62,7 +74,7 @@ const Item = ({ name, price, top, bottom, bra, cup, quantity, user, id, status, 
                 cup: cup,
                 quantity: quantity,
                 user: user,
-                supplier: id,
+                supplier: supplier,
                 status: 'Approved',
                 invoice: invoice
             });
@@ -72,7 +84,7 @@ const Item = ({ name, price, top, bottom, bra, cup, quantity, user, id, status, 
         }    
     }
 
-    async function Complete(name, price, top, bottom, bra, cup, quantity, user, id, invoice, i) 
+    async function Complete(name, price, top, bottom, bra, cup, quantity, user, supplier, invoice, i) 
     {
         try {
             await setDoc(doc(db, 'Orders', i),
@@ -85,7 +97,7 @@ const Item = ({ name, price, top, bottom, bra, cup, quantity, user, id, status, 
                 cup: cup,
                 quantity: quantity,
                 user: user,
-                supplier: id,
+                supplier: supplier,
                 status: 'Complete',
                 invoice: invoice
             });
@@ -95,7 +107,7 @@ const Item = ({ name, price, top, bottom, bra, cup, quantity, user, id, status, 
         }    
     }
 
-    async function Reject(name, price, top, bottom, bra, cup, quantity, user, id, invoice, i) 
+    async function Reject(name, price, top, bottom, bra, cup, quantity, user, supplier, invoice, i) 
     {
         try {
             await setDoc(doc(db, 'Orders', i),
@@ -108,7 +120,7 @@ const Item = ({ name, price, top, bottom, bra, cup, quantity, user, id, status, 
                 cup: cup,
                 quantity: quantity,
                 user: user,
-                supplier: id,
+                supplier: supplier,
                 status: 'Rejected',
                 invoice: invoice
             });
@@ -122,19 +134,19 @@ const Item = ({ name, price, top, bottom, bra, cup, quantity, user, id, status, 
     {
         return (
             <View style = {styles.container}>
-                <ScrollView style = {{ flex: 1, minHeight: '100%' }}>
-                    <Text style = {styles.header}>Product Order Form:</Text>
-                    <View style = {styles.form}>
-                        <TouchableOpacity style = {styles.approve}
-                            onPress = {() => {Approve(name, price, top, bottom, cup, quantity, user, id, invoice, i)}}>
-                            <Text style = {styles.buttonLabel}>Approve</Text>
-                        </TouchableOpacity>
-                        <Text style = {styles.space}></Text>
-                        <TouchableOpacity style = {styles.reject}
-                            onPress = {() => {Reject(name, price, top, bottom, cup, quantity, user, id, invoice, i)}}>
-                            <Text style = {styles.buttonLabel}>Reject</Text>
-                        </TouchableOpacity>
-                    </View>
+                <ScrollView style = {styles.hold}>
+                    <Text style = {styles.header}>
+                        Product Order Form:
+                    </Text>
+                    <TouchableOpacity style = {styles.approve}
+                        onPress = {() => {Approve(name, price, top, bottom, bra, cup, quantity, user, supplier, invoice, i)}}>
+                        <Text style = {styles.buttonLabel}>Approve</Text>
+                    </TouchableOpacity>
+                    <Text style = {styles.space}></Text>
+                    <TouchableOpacity style = {styles.reject}
+                        onPress = {() => {Reject(name, price, top, bottom, bra, cup, quantity, user, supplier, invoice, i)}}>
+                        <Text style = {styles.buttonLabel}>Reject</Text>
+                    </TouchableOpacity>
                 </ScrollView>
             </View>
         );
@@ -143,14 +155,14 @@ const Item = ({ name, price, top, bottom, bra, cup, quantity, user, id, status, 
     {
         return (
             <View style = {styles.container}>
-                <ScrollView style = {{ flex: 1, minHeight: '100%' }}>
-                    <Text style = {styles.header}>Product Order Form:</Text>
-                    <View style = {styles.form}>
-                        <TouchableOpacity style = {styles.approve}
-                            onPress = {() => {Approve(name, price, top, bottom, cup, quantity, user, id, invoice, i)}}>
-                            <Text style = {styles.buttonLabel}>Approve</Text>
-                        </TouchableOpacity>
-                    </View>
+                <ScrollView style = {styles.hold}>
+                    <Text style = {styles.header}>
+                        Product Order Form:
+                    </Text>
+                    <TouchableOpacity style = {styles.approve}
+                        onPress = {() => {Approve(name, price, top, bottom, bra, cup, quantity, user, supplier, invoice, i)}}>
+                        <Text style = {styles.buttonLabel}>Approve</Text>
+                    </TouchableOpacity>
                 </ScrollView>
             </View>
         );
@@ -159,14 +171,14 @@ const Item = ({ name, price, top, bottom, bra, cup, quantity, user, id, status, 
     {
         return (
             <View style = {styles.container}>
-                <ScrollView style = {{ flex: 1, minHeight: '100%' }}>
-                    <Text style = {styles.header}>Product Order Form:</Text>
-                    <View style = {styles.form}>
-                        <TouchableOpacity style = {styles.complete}
-                            onPress = {() => {Complete(name, price, top, bottom, cup, quantity, user, id, invoice, i)}}>
-                            <Text style = {styles.blabel}>Complete/Packaged</Text>
-                        </TouchableOpacity>
-                    </View>
+                <ScrollView style = {styles.hold}>
+                    <Text style = {styles.header}>
+                        Product Order Form:
+                    </Text>
+                    <TouchableOpacity style = {styles.complete}
+                        onPress = {() => {Complete(name, price, top, bottom, bra, cup, quantity, user, supplier, invoice, i)}}>
+                        <Text style = {styles.blabel}>Complete/Packaged</Text>
+                    </TouchableOpacity>
                 </ScrollView>
             </View>
         );
@@ -179,31 +191,21 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        borderBottomColor: 'black',
-        borderBottomWidth: 1
+        backgroundColor: 'white'
+    },
+
+    hold:
+    {
+        minWidth: '100%',
+        maxWidth: '100%',
     },
 
     header:
     {
         color: 'black',
-        justifyContent: 'center',
-        alignSelf: 'center',
         fontFamily: 'sans-serif',
         fontSize: 18,
-        paddingBottom: 15,
-    },
-
-    form:
-    {
-        paddingTop: 5,
-        paddingBottom: 10,
-        paddingHorizontal: 1,
-        borderTopColor: 'black',
-        borderTopWidth: 1,
-        borderBottomColor: 'black',
-        borderBottomWidth: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
+        alignSelf: 'center'
     },
 
     label:
@@ -212,19 +214,6 @@ const styles = StyleSheet.create({
         fontFamily: 'sans-serif-thin',
         fontSize: 15,
         marginBottom: 1,
-    },
-
-    input:
-    {
-        borderColor: 'grey',
-        borderWidth: 1,
-        borderRadius: 1,
-        paddingTop: 7.5,
-        paddingBottom: 7.5,
-        paddingLeft: 10,
-        margin: 10,
-        minWidth: '80%',
-        maxWidth: '80%',
     },
 
     approve:
@@ -236,7 +225,7 @@ const styles = StyleSheet.create({
         borderWidth: 2,
         borderRadius: 1,
         backgroundColor: 'green',
-        marginTop: 17.5,
+        marginVertical: 15,
         paddingVertical: 5,
         minWidth: '75%',
         maxWidth: '75%'
@@ -251,7 +240,7 @@ const styles = StyleSheet.create({
         borderWidth: 2,
         borderRadius: 1,
         backgroundColor: 'red',
-        marginTop: 17.5,
+        marginVertical: 15,
         paddingVertical: 5,
         minWidth: '75%',
         maxWidth: '75%'
@@ -266,22 +255,7 @@ const styles = StyleSheet.create({
         borderWidth: 2,
         borderRadius: 1,
         backgroundColor: 'black',
-        marginTop: 17.5,
-        paddingVertical: 5,
-        minWidth: '75%',
-        maxWidth: '75%'
-    },
-
-    sent:
-    {
-        justifyContent: 'center',
-        alignItems: 'center',
-        alignSelf: 'center',
-        borderColor: '#e6c2bf',
-        borderWidth: 2,
-        borderRadius: 1,
-        backgroundColor: '#e6c2bf',
-        marginTop: 17.5,
+        marginVertical: 15,
         paddingVertical: 5,
         minWidth: '75%',
         maxWidth: '75%'
@@ -310,4 +284,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default Item;
+export default Item_M;

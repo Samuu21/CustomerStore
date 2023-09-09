@@ -49,7 +49,7 @@ const Pending = ({ navigation, route }) => {
         };
         
         fetchProducts();
-    }, [products]);
+    }, []);
 
     async function deleteData(supplier, name, top, bottom, bra, cup) 
     {
@@ -138,7 +138,7 @@ const Pending = ({ navigation, route }) => {
                                         </Text>
                                     </TouchableOpacity>
                                 </View>
-                                <View style = {styles.image}>
+                                <View>
                                     <Photo id = {item.supplier} name = {item.name}/>
                                 </View>
                                 <View style = {styles.info}>
@@ -222,6 +222,8 @@ const styles = StyleSheet.create({
 
     hold:
     {
+        marginLeft: 7.5,
+        marginBottom: 10,
         paddingVertical: 12.5,
         paddingHorizontal: 2.75,
         alignItems: 'center',
@@ -242,15 +244,6 @@ const styles = StyleSheet.create({
         minWidth: '95%',
         maxWidth: '95%',
         opacity: 0.85
-    },
-
-    image:
-    {
-        maxwidth: 175,
-        maxheight: 175,
-        minwidth: 175,
-        minheight: 175
-
     },
 
     first:

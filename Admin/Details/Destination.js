@@ -3,10 +3,10 @@ import { View, Text, StyleSheet, TouchableOpacity, ImageBackground } from 'react
 import { AntDesign } from '@expo/vector-icons';
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
-import { collection, query, where, getDocs } from "firebase/firestore";
+import { collection, query, getDocs } from "firebase/firestore";
 import Modal from 'react-native-modal';
-import Advert from './Advert';
 import Details from './Details';
+import Insert from "./Insert";
 
 const firebaseConfig = {
     apiKey: "AIzaSyBz1NwWgjC9U4CU7nRcWtwVp6aBkOIhN_Q",
@@ -24,6 +24,7 @@ const db = getFirestore(app);
 
 const Destination= () => {
     const [isModalVisible, setIsModalVisible] = useState(false);
+    const [isModalVisiblee, setIsModalVisiblee] = useState(false);
     const [house, setH] = useState('');
     const [street, setS] = useState('');
     const [town, setT] = useState('');
@@ -32,6 +33,10 @@ const Destination= () => {
     
     const toggleModal = () => {
         setIsModalVisible(!isModalVisible);
+    };
+
+    const toggleModall = () => {
+        setIsModalVisiblee(!isModalVisiblee);
     };
 
     useEffect(() => {
@@ -59,11 +64,14 @@ const Destination= () => {
 
     return(
         <View style = {styles.container}>
-            <Advert/>
             <ImageBackground source = {require('../images/cover4.png')} resizeMethod = 'scale'
                     style = {{flex: 1, justifyContent: 'center'}}>
                 <View style = {styles.user}>
                     <AntDesign name = 'form' size = {75} color = 'black'/>
+                    <TouchableOpacity style = {styles.add}
+                        onPress = {toggleModall}>
+                        <Text style = {styles.appLabel}>Add Item</Text>
+                    </TouchableOpacity>
                     <View style = {styles.row}>
                         <View style = {styles.hold}>
                             <Text style = {styles.header}>House Number:</Text>
@@ -97,6 +105,20 @@ const Destination= () => {
                         <Details ho = {house} st = {street} to = {town} po = {postal} doci = {docId}/>
                         <TouchableOpacity style = {styles.button2}
                             onPress = {toggleModal}>
+                            <Text style = {styles.label2}>Go Back</Text>
+                        </TouchableOpacity>
+                    </View>
+                </Modal>
+                <Modal
+                    animationInTiming = {1000}
+                    animationIn = {'slideInLeft'}
+                    animationOutTiming = {1000}
+                    animationOut = {'slideOutRight'}
+                    isVisible = {isModalVisiblee}>
+                    <View style = {styles.container}>
+                        <Insert/>
+                        <TouchableOpacity style = {styles.button2}
+                            onPress = {toggleModall}>
                             <Text style = {styles.label2}>Go Back</Text>
                         </TouchableOpacity>
                     </View>
@@ -177,6 +199,31 @@ const styles = StyleSheet.create({
         fontFamily: 'sans-serif-thin',
         fontSize: 15,
         paddingBottom: 1.5,
+    },
+
+    add:
+    {
+        justifyContent: 'center',
+        alignItems: 'center',
+        alignSelf: 'center',
+        borderColor: '#e6c2bf',
+        borderWidth: 2,
+        borderRadius: 10,
+        backgroundColor: '#e6c2bf',
+        paddingVertical: 10,
+        paddingHorizontal: 10,
+        marginTop: 10,
+    },
+
+    appLabel:
+    {
+        justifyContent: 'center',
+        alignItems: 'center',
+        fontFamily: 'sans-serif',
+        fontWeight: 'bold',
+        fontSize: 15,
+        color: 'black',
+        padding: 5
     },
 
     button:

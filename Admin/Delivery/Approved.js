@@ -1,8 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, TouchableOpacity, Text, StyleSheet, ScrollView, Image, ImageBackground } from 'react-native'
-import Advert from './Advert';
-import Modal from 'react-native-modal';
-import Item from './Item/Item';
+import { View, TouchableOpacity, Text, StyleSheet, ScrollView, Image, ImageBackground } from 'react-native';
 import Total from './Total';
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
@@ -27,11 +24,8 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-const ApprovedD = () => {
-    const [isModalVisible, setIsModalVisible] = useState(false);
+const ApprovedD = ({ navigation }) => {
     const [products, setProducts] = useState([]);
-    const [supplier, setSupplier] = useState('');
-    const [invoice, setInvoice] = useState('');
 
     useEffect(() => {
         const fetchProducts = async() => {
@@ -51,22 +45,11 @@ const ApprovedD = () => {
         
         fetchProducts();
     }, [products]); 
-
-    function toggleModal(supplier, invoice) {
-        setSupplier(supplier);
-        setInvoice(invoice);
-        setIsModalVisible(!isModalVisible);
-    };
-
-    function toggleModall() {
-        setIsModalVisible(!isModalVisible);
-    };
     
     if(products.length <= 0) //This one is if there is no result.
     {
         return (
             <View style = {styles.container}>
-                <Advert/>
                 <ScrollView style = {styles.scrollV}>
                     <View style = {styles.scroll}>
                         <Image style = {{ width: 175, height: 175, resizeMode: 'contain', marginTop: 35, paddingBottom: 7.5}}
@@ -81,34 +64,19 @@ const ApprovedD = () => {
     {
         return(
             <View style = {styles.container}>
-                <Advert/>
                 <ImageBackground source = {require('../images/cover8.png')} resizeMethod = 'scale'
                     style = {{flex: 1, justifyContent: 'center'}}>
                     <ScrollView style = {styles.scrollV}>
                     {products.map((item, key) => (
                         <TouchableOpacity style = {styles.hold}
                             key = {key}
-                            onPress = {() => {toggleModal(item.supplier, item.invoice)}}>
+                            onPress = {() => {navigation.navigate('Item_D', {invoice: item.invoice, supplier: item.supplier})}}>
                             <Text style = {styles.invoice}>Invoice Number: {item.invoice}</Text>
                             <Total supplier = {item.supplier} invoice = {item.invoice}/>
                         </TouchableOpacity>
                     ))}
                     <Text style = {styles.space}></Text>
                     </ScrollView>
-                    <Modal
-                        animationInTiming = {1000}
-                        animationIn = {'slideInLeft'}
-                        animationOutTiming = {1000}
-                        animationOut = {'slideOutRight'}
-                        isVisible = {isModalVisible}>
-                        <View style = {styles.container}>
-                            <Item invoice = {invoice} supplier = {supplier} />
-                            <TouchableOpacity style = {styles.button2}
-                                onPress = {() => {toggleModall()}}>
-                                <Text style = {styles.buttonLabel2}>Go Back</Text>
-                            </TouchableOpacity>
-                        </View>
-                    </Modal>
                 </ImageBackground>
             </View>
         )
@@ -160,6 +128,8 @@ const styles = StyleSheet.create({
 
     hold:
     {
+        marginLeft: 7.5,
+        marginBottom: 10,
         paddingVertical: 12.5,
         paddingHorizontal: 2.75,
         alignItems: 'center',

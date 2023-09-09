@@ -5,7 +5,7 @@ import * as SecureStore from 'expo-secure-store';
 import { SelectList } from 'react-native-dropdown-select-list';
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
-import { collection, query, where, getDocs, addDoc } from 'firebase/firestore';
+import { collection, query, where, getDocs, deleteDoc, doc, addDoc } from 'firebase/firestore';
 import { decode } from 'base-64';
 
 if(typeof atob === 'undefined') {
@@ -32,16 +32,16 @@ const db = getFirestore(app);
 
 const Details = ({ id }) => {
     const [name, setName] = useState(''); //Name of product
-    const [price, setPrice] = useState(null); //Price of product
+    const [price, setPrice] = useState(''); //Price of product
     const [top, setTop] = useState(''); //Size top of product
     const [bottom, setBottom] = useState(''); //Size bottom of product
     const [bra, setBra] = useState(''); //Size bra of product
     const [cup, setCup] = useState(''); //Size cup of product
-    const [quantity, setQuantity] = useState(null); //Quantity of product
+    const [quantity, setQuantity] = useState(''); //Quantity of product
     const [gender, setGender] = useState(''); //Gender of product
     const [category, setCategory] = useState(''); //Category of product
     const [sale, setSale] = useState(''); //Sale of product
-    const [saleprice, setSaleP] = useState(null); //Sale new price of product
+    const [saleprice, setSaleP] = useState(''); //Sale new price of product
     const [images, setImages] = useState([]);
     
     var check = false;
@@ -57,7 +57,8 @@ const Details = ({ id }) => {
             const puerySnapShot = await getDocs(p);
             if(querySnapShot.empty && puerySnapShot.empty)
             {
-                //
+                check1 = false;
+                check2 = false;
             }
             else if(!querySnapShot.empty && puerySnapShot.empty)
             {
@@ -183,14 +184,72 @@ const Details = ({ id }) => {
     const Sale = [{key: '1', value: 'Yes'},
                 {key: '2', value: 'No'},];
 
-    async function addData(name, price, top, bottom, bra, cup, quantity, gender, category, sale, saleprice, images, id) 
+    async function addImages(name, ...images)
+    {
+        const fetchName = async() => {
+            const q = query(collection(db, "Images"), where("name", "==", name));
+            const querySnapShot = await getDocs(q);
+            if(querySnapShot.empty)
+            {
+                for (let i = 0; i < images.length; i++) 
+                {
+                    try 
+                    {
+                        const docRef = await addDoc(collection(db, 'Images'),
+                        {
+                            name: name,
+                            image: images[i],
+                            supplier: id
+                        });
+                        console.log('Image is entered in database.');
+                    } 
+                    catch (error) 
+                    {
+                        console.error("Error adding document: ", error);
+                    }
+                }
+            }
+            else
+            {
+                await deleteDoc(doc(db, 'Images'), where("name", "==", name));
+                for (let i = 0; i < images.length; i++) 
+                {
+                    try 
+                    {
+                        const docRef = await addDoc(collection(db, 'Images'),
+                        {
+                            name: name,
+                            image: images[i],
+                            supplier: id
+                        });
+                        console.log('Image is entered in database.');
+                    } 
+                    catch (error) 
+                    {
+                        console.error("Error adding document: ", error);
+                    }
+                }
+            }
+        };
+
+        if(images.length > 0)
+        {
+            fetchName();
+        }
+        else
+        {
+            //
+        }
+    }
+
+    async function addData(name, price, top, bottom, bra, cup, quantity, gender, category, sale, saleprice, id) 
     {
         const fetchName = async() => {
             const q = query(collection(db, "Items"), where("name", "==", name), where("supplier", "!=", id));
             const querySnapShot = await getDocs(q);
             if(querySnapShot.empty)
             {
-                //
+                check = false;
             }
             else
             {
@@ -208,149 +267,58 @@ const Details = ({ id }) => {
         {
             if(check1 != true || check2 != true)
             {
-                if(images.length <= 0)
-                {   
-                    try 
-                    {
-                        const docRef = await addDoc(collection(db, 'Items'),
-                        {
-                            name: name,
-                            price: price,
-                            top: top,
-                            bottom: bottom,
-                            bra: bra,
-                            cup: cup,
-                            quantity: quantity,
-                            gender: gender,
-                            category: category,
-                            sale: sale,
-                            saleprice: saleprice,
-                            status: 'Rejected',
-                            reason: 'Either your proof of residence or proof of identification has not been submitted.',
-                            supplier: id
-                        });
-                        alert('Your product has been inserted.');
-                    } 
-                    catch (error) 
-                    {
-                        console.error("Error adding document: ", error);
-                    }    
-                }
-                else
+                try 
                 {
-                    images.forEach(async (doc) => {
-                        try 
-                        {
-                            const docRef = await addDoc(collection(db, 'Images'),
-                            {
-                                name: name,
-                                image: doc.data().base64,
-                                supplier: id
-                            });
-                            console.log('Image is entered in database.');
-                        } catch (error) 
-                        {
-                            console.error("Error adding document: ", error);
-                        }
+                    const docRef = await addDoc(collection(db, 'Items'),
+                    {
+                        name: name,
+                        price: price,
+                        top: top,
+                        bottom: bottom,
+                        bra: bra,
+                        cup: cup,
+                        quantity: quantity,
+                        gender: gender,
+                        category: category,
+                        sale: sale,
+                        saleprice: saleprice,
+                        status: 'Rejected',
+                        reason: 'Either your proof of residence or proof of identification has not been submitted.',
+                        supplier: id
                     });
-                    try 
-                    {
-                        const docRef = await addDoc(collection(db, 'Items'),
-                        {
-                            name: name,
-                            price: price,
-                            top: top,
-                            bottom: bottom,
-                            bra: bra,
-                            cup: cup,
-                            quantity: quantity,
-                            gender: gender,
-                            category: category,
-                            sale: sale,
-                            saleprice: saleprice,
-                            status: 'Rejected',
-                            reason: 'Either your proof of residence or proof of identification has not been submitted.',
-                            supplier: id
-                        });
-                        alert('Your product has been inserted.');
-                    } 
-                    catch (error) 
-                    {
-                        console.error("Error adding document: ", error);
-                    } 
-                }
+                    alert('Your product has been inserted.');
+                } 
+                catch (error) 
+                {
+                    console.error("Error adding document: ", error);
+                }    
             }
             else
             {
-                if(images.length <= 0)
-                {   
-                    try 
-                    {
-                        const docRef = await addDoc(collection(db, 'Items'),
-                        {
-                            name: name,
-                            price: price,
-                            top: top,
-                            bottom: bottom,
-                            bra: bra,
-                            cup: cup,
-                            quantity: quantity,
-                            gender: gender,
-                            category: category,
-                            sale: sale,
-                            saleprice: saleprice,
-                            status: 'Pending',
-                            supplier: id
-                        });
-                        alert('Your product has been inserted.');
-                    } 
-                    catch (error) 
-                    {
-                        console.error("Error adding document: ", error);
-                    }    
-                }
-                else
+                try 
                 {
-                    images.forEach(async (doc) => {
-                        try 
-                        {
-                            const docRef = await addDoc(collection(db, 'Images'),
-                            {
-                                name: name,
-                                image: doc.data().base64,
-                                supplier: id
-                            });
-                            console.log('Image is entered in database.');
-                        } catch (error) 
-                        {
-                            console.error("Error adding document: ", error);
-                        }
+                    const docRef = await addDoc(collection(db, 'Items'),
+                    {
+                        name: name,
+                        price: price,
+                        top: top,
+                        bottom: bottom,
+                        bra: bra,
+                        cup: cup,
+                        quantity: quantity,
+                        gender: gender,
+                        category: category,
+                        sale: sale,
+                        saleprice: saleprice,
+                        status: 'Pending',
+                        supplier: id
                     });
-                    try 
-                    {
-                        const docRef = await addDoc(collection(db, 'Items'),
-                        {
-                            name: name,
-                            price: price,
-                            top: top,
-                            bottom: bottom,
-                            bra: bra,
-                            cup: cup,
-                            quantity: quantity,
-                            gender: gender,
-                            category: category,
-                            sale: sale,
-                            saleprice: saleprice,
-                            status: 'Pending',
-                            supplier: id
-                        });
-                        alert('Your product has been inserted.');
-                    } 
-                    catch (error) 
-                    {
-                        console.error("Error adding document: ", error);
-                    } 
-                }
+                    alert('Your product has been inserted.');
+                } 
+                catch (error) 
+                {
+                    console.error("Error adding document: ", error);
+                }    
             }
         }   
     }
@@ -366,7 +334,7 @@ const Details = ({ id }) => {
 
         if(!result.canceled) 
         {
-            const selectedImages = result.assets.map(asset => ({ base64: asset.base64 }));
+            const selectedImages = result.assets.map(asset => asset.base64 );
             setImages(selectedImages);
         }
     }
@@ -389,7 +357,7 @@ const Details = ({ id }) => {
                             <TextInput style = {styles.input} 
                                 keyboardType = 'numbers-and-punctuation'
                                 placeholder = '0.00'
-                                onChange = {setPrice}
+                                onChangeText = {setPrice}
                                 value = {price}/>
                         </View>
                     </View>
@@ -398,28 +366,28 @@ const Details = ({ id }) => {
                         <SelectList
                             disabledItemStyles = {{backgroundColor: 'black'}}
                             disabledTextStyles = {{color: 'white'}}
-                            boxStyles = {{margin: 10, minWidth: '27.5%'}}
+                            boxStyles = {{margin: 10, minWidth: '50%'}}
                             setSelected = { (val) => setTop(val)}
                             data = {TopChart}
                             save = 'value'/>
                         <SelectList
                             disabledItemStyles = {{backgroundColor: 'black'}}
                             disabledTextStyles = {{color: 'white'}}
-                            boxStyles = {{margin: 10, minWidth: '27.5%'}}
+                            boxStyles = {{margin: 10, minWidth: '50%'}}
                             setSelected = { (val) => setBottom(val)}
                             data = {BottomChart}
                             save = 'value'/>
                         <SelectList
                             disabledItemStyles = {{backgroundColor: 'black'}}
                             disabledTextStyles = {{color: 'white'}}
-                            boxStyles = {{margin: 10, minWidth: '27.5%'}}
+                            boxStyles = {{margin: 10, minWidth: '50%'}}
                             setSelected = { (val) => setBra(val)}
                             data = {BraCupChart}
                             save = 'value'/>
                         <SelectList
                             disabledItemStyles = {{backgroundColor: 'black'}}
                             disabledTextStyles = {{color: 'white'}}
-                            boxStyles = {{margin: 10, minWidth: '27.5%'}}
+                            boxStyles = {{margin: 10, minWidth: '50%'}}
                             setSelected = { (val) => setCup(val)}
                             data = {CupChart}
                             save = 'value'/>
@@ -430,7 +398,7 @@ const Details = ({ id }) => {
                             <TextInput style = {styles.input} 
                                 keyboardType = 'number-pad'
                                 placeholder = '3'
-                                onChange = {setQuantity}
+                                onChangeText = {setQuantity}
                                 value = {quantity}/>
                         </View>
                         <View style = {styles.hold}>
@@ -463,7 +431,7 @@ const Details = ({ id }) => {
                             <TextInput style = {styles.input} 
                                 keyboardType = 'numbers-and-punctuation'
                                 placeholder = '0.00'
-                                onChange = {setSaleP}
+                                onChangeText = {setSaleP}
                                 value = {saleprice}/>
                         </View>
                     </View>
@@ -479,14 +447,14 @@ const Details = ({ id }) => {
                             {images && images.map((image, index) => (
                                 <Image
                                     key={index}
-                                    source={{ uri: 'data:image/jpeg;base64,' + image.base64 }}
+                                    source={{ uri: 'data:image/jpeg;base64,' + image }}
                                     style={{ width: 200, height: 200, alignSelf: 'center', resizeMode: 'contain' }}/>
                             ))}
                         </View>
                     </View>
                 </View>
                 <TouchableOpacity style = {styles.button}
-                    onPress = {() => {addData(name, price, top, bottom, bra, cup, quantity, gender, category, sale, saleprice, images, id)}}>
+                    onPress = {() => {addData(name, price, top, bottom, bra, cup, quantity, gender, category, sale, saleprice, id); addImages(name, ...images)}}>
                     <Text style = {styles.buttonLabel}>Save</Text>
                 </TouchableOpacity>
             </ScrollView>

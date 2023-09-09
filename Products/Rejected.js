@@ -9,7 +9,6 @@ import { getFirestore } from "firebase/firestore";
 import { collection, query, where, getDocs, deleteDoc, doc } from 'firebase/firestore';
 import Photo from './Photo';
 import { decode } from 'base-64';
-import Details from './Details/Details';
 
 if(typeof atob === 'undefined') {
   global.atob = decode;
@@ -50,7 +49,7 @@ const Rejected = ({ navigation, route }) => {
         };
         
         fetchProducts();
-    }, [products]);
+    }, []);
 
     async function deleteData(supplier, name, top, bottom, bra, cup) 
     {
@@ -120,7 +119,7 @@ const Rejected = ({ navigation, route }) => {
             <View style = {styles.container}>
                 <Advert/>
                 <ImageBackground source = {require('../images/cover9.png')} resizeMethod = 'scale'
-                    style = {{flex: 1, justifyContent: 'center'}}>0
+                    style = {{flex: 1, justifyContent: 'center'}}>
                     <TouchableOpacity style = {styles.button}
                         onPress = {toggleModal}>
                         <Text style = {styles.buttonLabel}>Add Item</Text>
@@ -221,11 +220,13 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         flexWrap: "wrap",
         paddingHorizontal: 10,
-        paddingVertical: 2.5,
+        paddingVertical: 0.5,
     },
 
     hold:
     {
+        marginLeft: 7.5,
+        marginBottom: 10,
         paddingVertical: 12.5,
         paddingHorizontal: 2.75,
         alignItems: 'center',
@@ -246,15 +247,6 @@ const styles = StyleSheet.create({
         minWidth: '95%',
         maxWidth: '95%',
         opacity: 0.85
-    },
-
-    image:
-    {
-        maxwidth: 175,
-        maxheight: 175,
-        minwidth: 175,
-        minheight: 175
-
     },
 
     first:
@@ -302,7 +294,7 @@ const styles = StyleSheet.create({
         color: 'black',
         fontFamily: 'sans-serif',
         fontWeight: 'bold',
-        fontSize: 15,
+        fontSize: 13.5,
         justifyContent: 'flex-end',
         alignItems: 'flex-end',
         paddingVertical: 2

@@ -182,156 +182,124 @@ const Update = ({ supplier, product, item, col }) => { // supplier has supplier_
     const Sale = [{key: '1', value: 'Yes'},
                 {key: '2', value: 'No'},];
 
-    async function updateData(name, price, top, bottom, bra, cup, quantity, gender, category, sale, saleprice, images, supplier, product, col) 
+    async function updateData(name, price, top, bottom, bra, cup, quantity, gender, category, sale, saleprice, supplier, product, col) 
     {
         if(check1 != true || check2 != true)
         {
-            if(images.length <= 0) 
+            try 
             {
-                try {
-                    await deleteDoc(doc(db, 'Items', product), where("status", "==", col));
-                    await setDoc(doc(db, 'Items', product),
-                    {
-                        name: name,
-                        price: price,
-                        top: top,
-                        bottom: bottom,
-                        bra: bra,
-                        cup: cup,
-                        quantity: quantity,
-                        gender: gender,
-                        category: category,
-                        sale: sale,
-                        saleprice: saleprice,
-                        status: 'Rejected',
-                        reason: 'Either your proof of residence or proof of identification has not been submitted.',
-                        supplier: supplier
-                    });
-                    alert('Your product has been updated.');
-                } 
-                catch (error) 
+                await deleteDoc(doc(db, 'Items', product), where("status", "==", col));
+                await setDoc(doc(db, 'Items', product),
                 {
-                    console.error("Error adding document: ", error);
-                }
+                    name: name,
+                    price: price,
+                    top: top,
+                    bottom: bottom,
+                    bra: bra,
+                    cup: cup,
+                    quantity: quantity,
+                    gender: gender,
+                    category: category,
+                    sale: sale,
+                    saleprice: saleprice,
+                    status: 'Rejected',
+                    reason: 'Either your proof of residence or proof of identification has not been submitted.',
+                    supplier: supplier
+                });
+                alert('Your product has been updated.');
             } 
-            else 
+            catch (error) 
             {
-                try {
-                    await deleteDoc(doc(db, 'Items', product), where("status", "==", col));
-                    await deleteDoc(doc(db, 'Images'), where("name", "==", name), where("supplier", "==", supplier));
-                    await setDoc(doc(db, 'Items', product),
+                console.error("Error adding document: ", error);
+            }
+        } 
+        else 
+        {
+            try 
+            {
+                await deleteDoc(doc(db, 'Items', product), where("status", "==", col));
+                await setDoc(doc(db, 'Items', product),
+                {
+                    name: name,
+                    price: price,
+                    top: top,
+                    bottom: bottom,
+                    bra: bra,
+                    cup: cup,
+                    quantity: quantity,
+                    gender: gender,
+                    category: category,
+                    sale: sale,
+                    saleprice: saleprice,
+                    status: 'Rejected',
+                    reason: 'Either your proof of residence or proof of identification has not been submitted.',
+                    supplier: supplier
+                });
+                alert('Your product has been updated.');
+            } 
+            catch (error) 
+            {
+                console.error("Error adding document: ", error);
+            }   
+        } 
+    }
+
+    async function updateImages(name, ...images)
+    {
+        const fetchName = async() => {
+            const q = query(collection(db, "Images"), where("name", "==", name));
+            const querySnapShot = await getDocs(q);
+            if(querySnapShot.empty)
+            {
+                for (let i = 0; i < images.length; i++) 
+                {
+                    try 
                     {
-                        name: name,
-                        price: price,
-                        top: top,
-                        bottom: bottom,
-                        bra: bra,
-                        cup: cup,
-                        quantity: quantity,
-                        gender: gender,
-                        category: category,
-                        sale: sale,
-                        saleprice: saleprice,
-                        status: 'Rejected',
-                        reason: 'Either your proof of residence or proof of identification has not been submitted.',
-                        supplier: supplier
-                    });
-                    images.forEach(async (doc) => {
-                        try {
-                            const docRef = await addDoc(collection(db, 'Images'),
-                            {
-                                name: name,
-                                image: doc.data().base64,
-                                supplier: id
-                            });
-                            console.log('Image is entered in database.');
-                        } 
-                        catch (error) 
+                        const docRef = await addDoc(collection(db, 'Images'),
                         {
-                            console.error("Error adding document: ", error);
-                        }
-                    });
-                    alert('Your product has been updated.');
-                } 
-                catch (error) 
+                            name: name,
+                            image: images[i],
+                            supplier: id
+                        });
+                        console.log('Image is entered in database.');
+                    } 
+                    catch (error) 
+                    {
+                        console.error("Error adding document: ", error);
+                    }
+                }
+            }
+            else
+            {
+                await deleteDoc(doc(db, 'Images'), where("name", "==", name));
+                for (let i = 0; i < images.length; i++) 
                 {
-                    console.error("Error adding document: ", error);
-                }   
-            } 
+                    try 
+                    {
+                        const docRef = await addDoc(collection(db, 'Images'),
+                        {
+                            name: name,
+                            image: images[i],
+                            supplier: id
+                        });
+                        console.log('Image is entered in database.');
+                    } 
+                    catch (error) 
+                    {
+                        console.error("Error adding document: ", error);
+                    }
+                }
+            }
+        };
+
+        if(images.length > 0)
+        {
+            fetchName();
         }
         else
         {
-            if(images.length <= 0) 
-            {
-                try {
-                    await deleteDoc(doc(db, 'Items', product), where("status", "==", col));
-                    await setDoc(doc(db, 'Items', product),
-                    {
-                        name: name,
-                        price: price,
-                        top: top,
-                        bottom: bottom,
-                        bra: bra,
-                        cup: cup,
-                        quantity: quantity,
-                        gender: gender,
-                        category: category,
-                        sale: sale,
-                        saleprice: saleprice,
-                        status: 'Pending',
-                        supplier: supplier
-                    });
-                    alert('Your product has been updated.');
-                } 
-                catch (error) 
-                {
-                    console.error("Error adding document: ", error);
-                }
-            } 
-            else 
-            {
-                try {
-                    await deleteDoc(doc(db, 'Items', product), where("status", "==", col));
-                    await deleteDoc(doc(db, 'Images'), where("name", "==", name), where("supplier", "==", supplier));
-                    await setDoc(doc(db, 'Items', product),
-                    {
-                        name: name,
-                        price: price,
-                        top: top,
-                        bottom: bottom,
-                        bra: bra,
-                        cup: cup,
-                        quantity: quantity,
-                        gender: gender,
-                        category: category,
-                        sale: sale,
-                        saleprice: saleprice,
-                        status: 'Pending',
-                        supplier: supplier
-                    });
-                    images.forEach(async (doc) => {
-                        try {
-                            const docRef = await addDoc(collection(db, 'Images'),
-                            {
-                                name: name,
-                                image: doc.data().base64,
-                                supplier: id
-                            });
-                            console.log('Image is entered in database.');
-                        } 
-                        catch (error) 
-                        {
-                            console.error("Error adding document: ", error);
-                        }
-                    });
-                    alert('Your product has been updated.');
-                } 
-                catch (error) 
-                {
-                    console.error("Error adding document: ", error);
-                }   
-            }
-        }  
+            //
+        }
     }
 
     const pickImage = async () => {
@@ -345,7 +313,7 @@ const Update = ({ supplier, product, item, col }) => { // supplier has supplier_
 
         if(!result.canceled) 
         {
-            const selectedImages = result.assets.map(asset => ({ base64: asset.base64 }));
+            const selectedImages = result.assets.map(asset => asset.base64 );
             setImages(selectedImages);
         }
     }
@@ -462,14 +430,14 @@ const Update = ({ supplier, product, item, col }) => { // supplier has supplier_
                             {images && images.map((image, index) => (
                                 <Image
                                     key={index}
-                                    source={{ uri: 'data:image/jpeg;base64,' + image.base64 }}
+                                    source={{ uri: 'data:image/jpeg;base64,' + image }}
                                     style={{ width: 200, height: 200, alignSelf: 'center', resizeMode: 'contain' }}/>
                             ))}
                         </View>
                     </View>
                 </View>
                 <TouchableOpacity style = {styles.button}
-                    onPress = {() => {updateData(name, price, top, bottom, bra, cup, quantity, gender, category, sale, saleprice, images, supplier, product, col)}}>
+                    onPress = {() => {updateData(name, price, top, bottom, bra, cup, quantity, gender, category, sale, saleprice, supplier, product, col); updateImages(name, ...images)}}>
                     <Text style = {styles.buttonLabel}>Save</Text>
                 </TouchableOpacity>
             </ScrollView>

@@ -38,7 +38,7 @@ const Photo = ({ id, name }) => {
             {
                 const productList = [];
                 querySnapShot.forEach((doc) => {
-                    var hold = "uri: 'data:image/jpeg;base64,'" + doc.data().image;
+                    var hold = `data:image/jpeg;base64,${doc.data().image}`;
                     productList.push(hold);
                 });
                 setImages(productList);
@@ -51,13 +51,16 @@ const Photo = ({ id, name }) => {
     return(
         <SliderBox
             images = {images}
-            sliderBoxHeight = {175}
-            parentWidth = {175}
+            sliderBoxHeight = {225}
+            parentWidth = {250}
+            resizeMode={'contain'}
             dotColor = '#e6c2bf'
             inactiveDotColor = 'black'
-            autoplay
-            circleLoop
-            imageLoadingColor="#2196F3"
+            autoplay = {true}
+            autoplayInterval = {4000}
+            circleLoop = {true}
+            imageLoadingColor = '#e6c2bf'
+            activeOpacity = {1}
         />
     );
 };

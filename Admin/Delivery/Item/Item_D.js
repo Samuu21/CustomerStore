@@ -27,9 +27,11 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-const Item = ({ invoice, supplier }) => {
+const Item_D = ({ route }) => {
     const [bank, setBank] = useState([]);
     const [products, setProducts] = useState([]);
+    const [invoice, setInvoice] = useState(route.params.invoice);
+    const [supplier, setSupplier] = useState(route.params.supplier);
     const [total, setTotal] = useState(0);
 
     useEffect(() => {
@@ -43,7 +45,8 @@ const Item = ({ invoice, supplier }) => {
             else
             {
                 querySnapShot.forEach((doc) => {
-                    setTotal(total += doc.data().price);
+                    var hold = parseFloat(doc.data().price);
+                    setTotal(total += hold);
                     setProducts(arr => [...arr, doc.data()]);
                 });
             }
@@ -74,63 +77,61 @@ const Item = ({ invoice, supplier }) => {
         fetchDetails();
     }, []);
 
-    async function Paid(products) 
+    async function Paid(...products) 
     {
-        products.forEach(async (item) => {
+        for(let i = 0; i < products.length; i++) 
+        {
             try 
             {
-                await setDoc(doc(db, 'Orders', item.id),
+                await setDoc(doc(db, 'Orders', products[i].id),
                 {
-                    name: item.data().name,
-                    price: item.data().price,
-                    top: item.data().top,
-                    bottom: item.data().bottom,
-                    bra: item.data().bra,
-                    cup: item.data().cup,
-                    quantity: item.data().quantity,
-                    user: item.data().user,
-                    supplier: item.data().supplier,
+                    name: products[i].name,
+                    price: products[i].price,
+                    top: products[i].top,
+                    bottom: products[i].bottom,
+                    bra: products[i].bra,
+                    cup: products[i].cup,
+                    quantity: products[i].quantity,
+                    user: products[i].user,
+                    supplier: products[i].supplier,
                     status: 'Approved_Dealt',
-                    invoice: item.data().invoice,
+                    invoice: products[i].invoice,
                 });
             } 
             catch (error) 
             {
                 console.error("Error adding document: ", error);
             } 
-        });
+        };
         alert('Invoice has been paid successfully.');
         await deleteDoc(doc(db, 'Orders'), where("supplier", "==", supplier), where("invoice", "==", invoice), where("status", "==", "Rejected"));
     }
 
     return (
         <View style = {styles.container}>
-            <ScrollView style = {{ flex: 1, minHeight: '100%' }}>
-                <Text style = {styles.header}>Order Pay Form:</Text>
-                <View style = {styles.form}>
-                    <View style = {styles.bank}>
-                        <Text style = {styles.label}>Supplier Bank Details:</Text>
-                        {bank.map((item, key) => (
-                        <View style = {styles.hold}
-                            key = {key}>
-                            <Text style = {styles.text}>Cardholder Name: {item.name}</Text>
-                            <Text style = {styles.text}>Bank Name: {item.bank}</Text>
-                            <Text style = {styles.text}>Branch Code: {item.branch}</Text>
-                            <Text style = {styles.text}>Account Number: {item.account}</Text>
-                            <Text style = {styles.text}>Email Address: {item.supplier}</Text>
-                        </View>
-                        ))}
-                        <View style = {styles.hold}>
-                            <Text style = {styles.text}>Commission: {com}</Text>
-                            <Text style = {styles.text}>Subtotal: {subtotal}</Text>
-                        </View>
+            <ScrollView style = {styles.scroll}>
+                <Text style = {styles.header}>
+                    Order Pay Form:
+                </Text>
+                <Text style = {styles.label}>Supplier Bank Details:</Text>
+                {bank.map((item, key) => (
+                    <View style = {styles.hold}
+                        key = {key}>
+                        <Text style = {styles.text}>Cardholder Name: {item.name}</Text>
+                        <Text style = {styles.text}>Bank Name: {item.bank}</Text>
+                        <Text style = {styles.text}>Branch Code: {item.branch}</Text>
+                        <Text style = {styles.text}>Account Number: {item.account}</Text>
+                        <Text style = {styles.text}>Email Address: {item.supplier}</Text>
                     </View>
-                    <TouchableOpacity style = {styles.paid}
-                        onPress = {() => {Paid(products)}}>
-                        <Text style = {styles.buttonLabel}>Paid</Text>
-                    </TouchableOpacity>
-                    <Text style = {styles.space}></Text>
+                ))}
+                <View style = {styles.hold}>
+                    <Text style = {styles.text}>Commission: {com}</Text>
+                    <Text style = {styles.text}>Amount to Pay: {subtotal}</Text>
                 </View>
+                <TouchableOpacity style = {styles.paid}
+                    onPress = {() => {Paid(...products)}}>
+                    <Text style = {styles.buttonLabel}>Paid</Text>
+                </TouchableOpacity>
             </ScrollView>
         </View>
     );
@@ -142,8 +143,13 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        borderBottomColor: 'black',
-        borderBottomWidth: 1
+        backgroundColor: 'white',
+    },
+
+    scroll:
+    {
+        minWidth: '100%',
+        maxWidth: '100%',
     },
 
     header:
@@ -156,19 +162,6 @@ const styles = StyleSheet.create({
         paddingBottom: 15,
     },
 
-    form:
-    {
-        paddingTop: 5,
-        paddingBottom: 10,
-        paddingHorizontal: 1,
-        borderTopColor: 'black',
-        borderTopWidth: 1,
-        borderBottomColor: 'black',
-        borderBottomWidth: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-
     label:
     {
         color: 'black',
@@ -176,13 +169,6 @@ const styles = StyleSheet.create({
         fontSize: 15,
         marginTop: 15,
         alignSelf: 'center',
-    },
-
-    bank:
-    {
-        flex: 1,
-        alignSelf: 'center',
-        paddingVertical: 3.25
     },
 
     text:
@@ -206,7 +192,7 @@ const styles = StyleSheet.create({
         borderWidth: 2,
         borderRadius: 1,
         backgroundColor: 'black',
-        marginTop: 17.5,
+        marginVertical: 15,
         paddingVertical: 5,
         minWidth: '75%',
         maxWidth: '75%'
@@ -225,4 +211,4 @@ const styles = StyleSheet.create({
 
 });
 
-export default Item;
+export default Item_D;

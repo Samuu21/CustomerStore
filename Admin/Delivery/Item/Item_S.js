@@ -28,15 +28,18 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-const Item_S = ({ invoice, supplier, user, ra }) => {
+const Item_S = ({ route }) => {
     const [products, setProducts] = useState([]);
+    const [invoice, setInvoice] = useState(route.params.invoice);
+    const [supplier, setSupplier] = useState(route.params.supplier);
+    const [user, setUser] = useState(route.params.user);
+    const [status, setStatus] = useState(route.params.status);
     const [del, setDel] = useState([]);
-    const [us, setUs] = useState([]);
     const [total, setTotal] = useState(0);
 
     useEffect(() => {
         const fetchProducts = async() => {
-            const q = query(collection(db, "Orders"), where("supplier", "==", supplier), where("status", "==", 'Sent'), where("invoice", "==", invoice));
+            const q = query(collection(db, "Orders"), where("supplier", "==", supplier), where("status", "==", status), where("invoice", "==", invoice));
             const querySnapShot = await getDocs(q);
             if(querySnapShot.empty)
             {
@@ -46,7 +49,8 @@ const Item_S = ({ invoice, supplier, user, ra }) => {
             {
                 querySnapShot.forEach((doc) => {
                     setProducts(arr => [...arr, doc.data()]);
-                    setTotal(total += doc.data().price);
+                    var hold = parseFloat(doc.data().price);
+                    setTotal(total += hold);
                 });
             }
         };
@@ -73,82 +77,65 @@ const Item_S = ({ invoice, supplier, user, ra }) => {
         fetchDetails();
     }, []);
 
-    useEffect(() => {
-        const fetchUser = async() => {
-            const q = query(collection(db, "User"), where("user", "==", user));
-            const qSnapShot = await getDocs(q);
-            if(qSnapShot.empty)
-            {
-                //
-            }
-            else
-            {
-                qSnapShot.forEach((doc) => {
-                   setUs(doc.data()); 
-                }); 
-            }
-        };
-        
-        fetchUser();
-    }, []);
-
     var i = total * 0.15;
     var subtotal = total - i;
 
-    async function Received(products) 
+    async function Received(...products) 
     {
-        products.forEach(async (item) => {
+        for(let i = 0; i < products.length; i++) 
+        {
             try 
             {
-                await setDoc(doc(db, 'Orders', item.id),
+                await setDoc(doc(db, 'Orders', products[i].id),
                 {
-                    name: item.data().name,
-                    price: item.data().price,
-                    top: item.data().top,
-                    bottom: item.data().bottom,
-                    bra: item.data().bra,
-                    cup: item.data().cup,
-                    quantity: item.data().quantity,
-                    user: item.data().user,
-                    supplier: item.data().supplier,
+                    name: products[i].name,
+                    price: products[i].price,
+                    top: products[i].top,
+                    bottom: products[i].bottom,
+                    bra: products[i].bra,
+                    cup: products[i].cup,
+                    quantity: products[i].quantity,
+                    user: products[i].user,
+                    supplier: products[i].supplier,
                     status: 'Sent_Received',
-                    invoice: item.data().invoice,
+                    invoice: products[i].invoice,
                 });
             } 
             catch (error) 
             {
                 console.error("Error adding document: ", error);
             } 
-        });
+        };
         alert('Package has been fetched successfully.');
     }
 
-    async function Dealt(products) 
+    async function Dealt(...products) 
     {
-        products.forEach(async (item) => {
+        for(let i = 0; i < products.length; i++) 
+        {
             try 
             {
-                await setDoc(doc(db, 'Orders', item.id),
+                await setDoc(doc(db, 'Orders', products[i].id),
                 {
-                    name: item.data().name,
-                    price: item.data().price,
-                    top: item.data().top,
-                    bottom: item.data().bottom,
-                    bra: item.data().bra,
-                    cup: item.data().cup,
-                    quantity: item.data().quantity,
-                    user: item.data().user,
-                    supplier: item.data().supplier,
+                    name: products[i].name,
+                    price: products[i].price,
+                    top: products[i].top,
+                    bottom: products[i].bottom,
+                    bra: products[i].bra,
+                    cup: products[i].cup,
+                    quantity: products[i].quantity,
+                    user: products[i].user,
+                    supplier: products[i].supplier,
                     status: 'Sent_Dealt',
-                    invoice: item.data().invoice,
+                    invoice: products[i].invoice,
                 });
             } 
             catch (error) 
             {
                 console.error("Error adding document: ", error);
             } 
-        });
-        alert('Package has been fetched successfully.');
+        };
+        alert('Package has been sent successfully.');
     }
 
     const Item = ({ name, top, bottom, bra, cup, quantity }) => {
@@ -242,7 +229,7 @@ const Item_S = ({ invoice, supplier, user, ra }) => {
             quantity = {item.quantity} />
     );
 
-    if(ra == 'Received') 
+    if(status == 'Sent') 
     {
         return (
             <SafeAreaView style = {{flex: 1, maxWidth: '100%', minwidth: '100%', maxHeight: '100%', minHeight: '100%', backgroundColor: 'white', paddingBottom: 100, justifyContent: 'center'}}>
@@ -260,7 +247,7 @@ const Item_S = ({ invoice, supplier, user, ra }) => {
                     <Text style = {{ fontFamily: 'sans-serif', fontWeight: 'bold', fontSize: 15}}>Invoice Total: R{subtotal}</Text>
                 </View>
                 <TouchableOpacity style = {styles.paid}
-                    onPress = {() => {Received(products)}}>
+                    onPress = {() => {Received(...products)}}>
                     <Text style = {styles.buttonLabel}>Received</Text>
                 </TouchableOpacity>
             </SafeAreaView>
@@ -306,7 +293,7 @@ const Item_S = ({ invoice, supplier, user, ra }) => {
                     <Text style = {{ fontFamily: 'sans-serif', fontWeight: 'bold', fontSize: 15}}>Invoice Total: R{subtotal}</Text>
                 </View>
                 <TouchableOpacity style = {styles.paid}
-                    onPress = {() => {Dealt(products)}}>
+                    onPress = {() => {Dealt(...products)}}>
                     <Text style = {styles.buttonLabel}>Deliver</Text>
                 </TouchableOpacity>
             </SafeAreaView>

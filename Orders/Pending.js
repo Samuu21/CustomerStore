@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, TouchableOpacity, Text, StyleSheet, ScrollView, Image, ImageBackground } from 'react-native'
 import Advert from './Advert';
-import Modal from 'react-native-modal';
-import Item from './Item/Item';
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { collection, query, where, getDocs, } from 'firebase/firestore';
@@ -27,18 +25,8 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-const PendingO = ({ route }) => {
-    const [isModalVisible, setIsModalVisible] = useState(false);
+const PendingO = ({ navigation, route }) => {
     const [products, setProducts] = useState([]);
-    const [name, setName] = useState('');
-    const [price, setPrice] = useState(0);
-    const [top, setTop] = useState(null);
-    const [bottom, setBottom] = useState(null);
-    const [bra, setBra] = useState(null);
-    const [cup, setCup] = useState(null);
-    const [quantity, setQuantity] = useState(0);
-    const [invoice, setInvoice] = useState('');
-    const [user, setUser] = useState('');
 
     useEffect(() => {
         const fetchProducts = async() => {
@@ -57,24 +45,7 @@ const PendingO = ({ route }) => {
         };
         
         fetchProducts();
-    }, [products]); 
-
-    function toggleModal(name, price, top, bottom, bra, cup, quantity, user, invoice) {
-        setName(name); 
-        setPrice(price);
-        setTop(top); 
-        setBottom(bottom);
-        setBra(bra);
-        setCup(cup); 
-        setQuantity(quantity); 
-        setUser(user); 
-        setInvoice(invoice);
-        setIsModalVisible(!isModalVisible);
-    };
-
-    function toggleModall() {
-        setIsModalVisible(!isModalVisible);
-    };
+    }, []); 
     
     if(products.length <= 0) //This one is if there is no result.
     {
@@ -102,9 +73,9 @@ const PendingO = ({ route }) => {
                     {products.map((item, key) => (
                         <TouchableOpacity style = {styles.hold}
                                 key = {key}
-                                onPress = {() => {toggleModal(item.name, item.price, item.top, item.bottom, item.bra, item.cup, item.quantity, item.user, item.invoice)}}>
+                                onPress = {() => {navigation.navigate('Item_M', {name: item.name, price: item.price, top: item.top, bottom: item.bottom, bra: item.bra, cup: item.cup, quantity: item.quantity, user: item.user, supplier: item.supplier, status: item.status, invoice: item.invoice})}}>
                             <View style = {styles.row}>
-                                <View style = {styles.image}>
+                                <View>
                                     <Photo id = {item.supplier} name = {item.name}/>
                                 </View>
                                 <View style = {styles.info}>
@@ -118,22 +89,7 @@ const PendingO = ({ route }) => {
                             </View>
                         </TouchableOpacity>
                     ))}
-                    <Text style = {styles.space}></Text>
                     </ScrollView>
-                    <Modal
-                        animationInTiming = {1000}
-                        animationIn = {'slideInLeft'}
-                        animationOutTiming = {1000}
-                        animationOut = {'slideOutRight'}
-                        isVisible = {isModalVisible}>
-                        <View style = {styles.container}>
-                            <Item name = {name} price = {price} top = {top} bottom = {bottom} bra = {bra} cup = {cup} quantity = {quantity} user = {user} id = {route.params.id} status = {'Pending'} invoice = {invoice} />
-                            <TouchableOpacity style = {styles.button2}
-                                onPress = {() => {toggleModall()}}>
-                                <Text style = {styles.buttonLabel2}>Go Back</Text>
-                            </TouchableOpacity>
-                        </View>
-                    </Modal>
                 </ImageBackground>
             </View>
         )
@@ -184,6 +140,8 @@ const styles = StyleSheet.create({
 
     hold:
     {
+        marginLeft: 7.5,
+        marginBottom: 10,
         paddingVertical: 12.5,
         paddingHorizontal: 2.75,
         alignItems: 'center',

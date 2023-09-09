@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, TouchableOpacity, Text, StyleSheet, ScrollView, Image, ImageBackground } from 'react-native'
-import Advert from './Advert';
+import { View, TouchableOpacity, Text, StyleSheet, ScrollView, Image, ImageBackground } from 'react-native';
 import Modal from 'react-native-modal';
 import Item_S from './Item/Item_S';
 import Total from './Total';
@@ -52,23 +51,11 @@ const SentD = () => {
         
         fetchProducts();
     }, [products]); 
-
-    function toggleModal(user, supplier, invoice) {
-        setUser(user);
-        setSupplier(supplier);
-        setInvoice(invoice);
-        setIsModalVisible(!isModalVisible);
-    };
-
-    function toggleModall() {
-        setIsModalVisible(!isModalVisible);
-    };
     
     if(products.length <= 0) //This one is if there is no result.
     {
         return (
             <View style = {styles.container}>
-                <Advert/>
                 <ScrollView style = {styles.scrollV}>
                     <View style = {styles.scroll}>
                         <Image style = {{ width: 175, height: 175, resizeMode: 'contain', marginTop: 35, paddingBottom: 7.5}}
@@ -83,14 +70,13 @@ const SentD = () => {
     {
         return(
             <View style = {styles.container}>
-                <Advert/>
                 <ImageBackground source = {require('../images/cover8.png')} resizeMethod = 'scale'
                     style = {{flex: 1, justifyContent: 'center'}}>
                     <ScrollView style = {styles.scrollV}>
                     {products.map((item, key) => (
                         <TouchableOpacity style = {styles.hold}
                             key = {key}
-                            onPress = {() => {toggleModal(item.user, item.supplier, item.invoice)}}>
+                            onPress = {() => {navigation.navigate('Item_S', {invoice: item.invoice, supplier: item.supplier, user: item.user, status: item.status})}}>
                             <Text style = {styles.invoice}>Invoice Number: {item.invoice}</Text>
                             <Text style = {styles.invoice}>Designer: {item.supplier}</Text>
                             <Total supplier = {item.supplier} invoice = {item.invoice}/>

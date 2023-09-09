@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, TouchableOpacity, Text, StyleSheet, ScrollView, Image, ImageBackground } from 'react-native'
 import Advert from './Advert';
-import Modal from 'react-native-modal';
-import Item_S from './Item/Item_S';
 import Total from './Total';
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
@@ -27,10 +25,8 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-const Complete = ({ route }) => {
-    const [isModalVisible, setIsModalVisible] = useState(false);
+const Complete = ({ navigation, route }) => {
     const [products, setProducts] = useState([]);
-    const [invoice, setInvoice] = useState('');
 
     useEffect(() => {
         const fetchProducts = async() => {
@@ -49,16 +45,7 @@ const Complete = ({ route }) => {
         };
         
         fetchProducts();
-    }, [products]); 
-
-    function toggleModal(invoice) {
-        setInvoice(invoice);
-        setIsModalVisible(!isModalVisible);
-    };
-
-    function toggleModall() {
-        setIsModalVisible(!isModalVisible);
-    };
+    }, []); 
     
     if(products.length <= 0) //This one is if there is no result.
     {
@@ -86,27 +73,12 @@ const Complete = ({ route }) => {
                     {products.map((item, key) => (
                         <TouchableOpacity style = {styles.hold}
                             key = {key}
-                            onPress = {() => {toggleModal(item.invoice)}}>
+                            onPress = {() => {navigation.navigate('Item_S', {supplier: item.supplier, invoice: item.invoice})}}>
                             <Text style = {styles.invoice}>Invoice Number: {item.invoice}</Text>
                             <Total supplier = {item.supplier} invoice = {item.invoice}/>    
                         </TouchableOpacity>
                     ))}
-                    <Text style = {styles.space}></Text>
                     </ScrollView>
-                    <Modal
-                        animationInTiming = {1000}
-                        animationIn = {'slideInLeft'}
-                        animationOutTiming = {1000}
-                        animationOut = {'slideOutRight'}
-                        isVisible = {isModalVisible}>
-                        <View style = {styles.container}>
-                            <Item_S invoice = {invoice} supplier = {route.params.id} />
-                            <TouchableOpacity style = {styles.button}
-                                onPress = {() => {toggleModall()}}>
-                                <Text style = {styles.buttonLabel}>Go Back</Text>
-                            </TouchableOpacity>
-                        </View>
-                    </Modal>
                 </ImageBackground>
             </View>
         )
@@ -149,6 +121,8 @@ const styles = StyleSheet.create({
 
     hold:
     {
+        marginLeft: 7.5,
+        marginBottom: 10,
         paddingVertical: 12.5,
         paddingHorizontal: 2.75,
         alignItems: 'center',

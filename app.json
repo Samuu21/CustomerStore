@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "MalgreBusiness",
+    "name": "Malgré Business",
     "slug": "malgre-business",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -22,15 +22,16 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/icon.png",
         "backgroundColor": "#FFFFFF"
       },
       "permissions": [
         "android.permission.RECORD_AUDIO"
-      ]
+      ],
+      "package": "com.samuu13.malgrebusiness"
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/icon.png"
     },
     "extra": {
       "eas": {
@@ -42,6 +43,17 @@
         "expo-image-picker",
         {
           "photosPermission": "The app accesses your photos to let you share them with your friends."
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/mb-icon.png",
+          "color": "#ffffff",
+          "sounds": [
+            "./assets/pop.mp3",
+            "./assets/soft.mp3"
+          ]
         }
       ]
     ],
